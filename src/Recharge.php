@@ -2,6 +2,7 @@
 
 namespace Haxibiao\Wallet;
 
+use App\User;
 use Haxibiao\Wallet\Traits\RechargeAttrs;
 use Haxibiao\Wallet\Traits\RechargeRepo;
 use Haxibiao\Wallet\Traits\RechargeResolvers;
@@ -27,8 +28,8 @@ class Recharge extends Model
     /**
      * 交易平台
      */
-    public const ALIPAY_PLATFORM = 'alipay';
-    public const WECHAT_PLATFORM = 'wechat';
+    public const ALIPAY_PLATFORM = 'ALIPAY';
+    public const WECHAT_PLATFORM = 'WECHAT';
 
     protected $casts = [
         'data' => 'array',
@@ -43,8 +44,8 @@ class Recharge extends Model
     {
         return [
             Recharge::RECHARGE_SUCCESS => '充值成功',
-            Recharge::RECHARGE_FAIL    => '等待支付',
-            Recharge::WATING_PAY       => '充值失败',
+            Recharge::RECHARGE_FAIL    => '充值失败',
+            Recharge::WATING_PAY       => '等待支付',
         ];
     }
 
