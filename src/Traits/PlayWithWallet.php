@@ -5,7 +5,7 @@ namespace Haxibiao\Wallet\Traits;
 use Haxibiao\Wallet\Recharge;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 
-trait PlayWithRecharge
+trait PlayWithWallet
 {
     public function recharges(): HasMany
     {
