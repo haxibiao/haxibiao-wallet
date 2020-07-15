@@ -1,0 +1,31 @@
+extend type Mutation {
+  """
+  获取充值订单签名
+  """
+  getRechargeSignature(
+    """
+    充值金额
+    """
+    amount: Float!
+    """
+    交易平台
+    """
+    platform: TradingPlatform = ALIPAY
+  ): PlatfromSignature @resolver(name: "Haxibiao\\Wallet\\Recharge@rsolverGetRechargeSignature")
+}
+
+type PlatfromSignature {
+  ALIPAY: String
+  WECHAT: JsonType
+}
+
+enum TradingPlatform {
+  """
+  微信
+  """
+  WECHAT
+  """
+  支付宝
+  """
+  ALIPAY
+}
