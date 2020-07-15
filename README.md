@@ -5,7 +5,7 @@
 
 
 ## 安装步骤
-1. `App/User`模型需要增加Trait: `use App\Traits\PlayWithRecharge`;
+1. `App/User`模型需要增加Trait: `use App\Traits\PlayWithWallet`;
 2. 执行 `git submodule add http://code.haxibiao.cn/packages/haxibiao-wallet packages/haxibiao/wallet`
 3. 将 `Haxibiao\Wallet\WalletServiceProvider::class,` 添加到 config/app.php
 4. 执行 `composer dump`
