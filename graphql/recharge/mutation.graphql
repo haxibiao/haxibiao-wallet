@@ -1,6 +1,6 @@
 extend type Mutation {
   """
-  获取交易平台签名
+  获取充值订单签名
   """
   getRechargeSignature(
     """
@@ -17,6 +17,10 @@ extend type Mutation {
 type PlatfromSignature {
   ALIPAY: String
   WECHAT: JsonType
+  """
+  内部交易单号
+  """
+  trade_no: String
 }
 
 enum TradingPlatform {
