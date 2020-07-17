@@ -49,7 +49,7 @@ trait RechargeResolvers
     /**
      * 效验苹果支付状态
      */
-    public function ResolverVerifyApplePay($receipt, $trade_no)
+    public static function ResolverVerifyApplePay($receipt, $trade_no)
     {
         $sendData = '{"receipt-data":"' . $receipt . '"}';
         try {
@@ -66,14 +66,9 @@ trait RechargeResolvers
                 throw new GQLException('未支付成功,请稍后再试~');
             }
         } catch (GuzzleException $e) {
-            //网络请求异常,重新处理
-            if ($this->verify <= 3) {
-                Log::warning('Apple 验证支付失败，重试' . $this->verify . '次', func_get_args());
-                $this->verify += 1;
-                $this->verifyApplePay($receipt);
-            }
+            Log::error('Apple 验证支付失败', func_get_args());
         } catch (\Exception $e) {
-            Log::warning('apple 支付处理异常', func_get_args());
+            Log::error('apple 支付处理异常', func_get_args());
             return false;
         }
     }

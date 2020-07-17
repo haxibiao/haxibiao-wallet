@@ -58,4 +58,11 @@ class PayController extends Controller
         return $wechat->success();
     }
 
+    public function appleNotify(Request $request)
+    {
+        Log::info('apple', $request->all());
+        $receipt  = $request->post('receipt');
+        $trade_no = $request->post('trade_no');
+        return Recharge::ResolverVerifyApplePay($receipt, $trade_no);
+    }
 }
