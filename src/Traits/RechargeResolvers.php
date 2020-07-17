@@ -1,7 +1,11 @@
 <?php
 namespace Haxibiao\Wallet\Traits;
 
+use App\Exceptions\GQLException;
+use GuzzleHttp\Client;
+use GuzzleHttp\Exception\GuzzleException;
 use Haxibiao\Wallet\Recharge;
+use Yansongda\Pay\Log;
 use Yansongda\Pay\Pay;
 
 trait RechargeResolvers
@@ -40,5 +44,37 @@ trait RechargeResolvers
             $platform  => $signature,
             'trade_no' => $recharge->trade_no,
         ];
+    }
+
+    /**
+     * 效验苹果支付状态
+     */
+    public function ResolverVerifyApplePay($receipt, $trade_no)
+    {
+        $sendData = '{"receipt-data":"' . $receipt . '"}';
+        try {
+            $client = new Client();
+            $result = $client->request('post', "https://buy.itunes.apple.com/verifyReceipt", [
+                'body' => $sendData,
+            ])->getBody()->getContents();
+            $data = json_decode($result, true);
+            info($data);
+            // 判断是否购买成功
+            if ($data['status'] == 0) {
+                return $data;
+            } else {
+                throw new GQLException('未支付成功,请稍后再试~');
+            }
+        } catch (GuzzleException $e) {
+            //网络请求异常,重新处理
+            if ($this->verify <= 3) {
+                Log::warning('Apple 验证支付失败，重试' . $this->verify . '次', func_get_args());
+                $this->verify += 1;
+                $this->verifyApplePay($receipt);
+            }
+        } catch (\Exception $e) {
+            Log::warning('apple 支付处理异常', func_get_args());
+            return false;
+        }
     }
 }
