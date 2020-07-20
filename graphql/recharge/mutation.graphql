@@ -24,11 +24,16 @@ extend type Mutation {
     内部交易单号
     """
     trade_no: String!
+    """
+    是否为沙箱环境
+    """
+    isSandBox: Boolean = true
   ): Recharge @resolver(name: "Haxibiao\\Wallet\\Recharge@ResolverVerifyApplePay")
 }
 
 type PlatfromSignature {
   ALIPAY: String
+  APPLE: String
   WECHAT: JsonType
   """
   内部交易单号
@@ -45,4 +50,8 @@ enum TradingPlatform {
   支付宝
   """
   ALIPAY
+  """
+  苹果
+  """
+  APPLE
 }

@@ -44,4 +44,25 @@ trait RechargeRepo
             return $recharge;
         }
     }
+
+    /**
+     * 苹果商品表，ios支付特有
+     */
+    public static function appleProductMap()
+    {
+        return [
+            'com.bianxiandaxue_01' => [
+                'name'   => '6学币',
+                'amount' => 6,
+            ],
+            'com.bianxiandaxue_10' => [
+                'name'   => '68学币',
+                'amount' => 68,
+            ],
+            'com.bianxiandaxue_28' => [
+                'name'   => '188学币',
+                'amount' => 188,
+            ],
+        ];
+    }
 }

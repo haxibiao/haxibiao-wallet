@@ -30,6 +30,13 @@ class Recharge extends Model
      */
     public const ALIPAY_PLATFORM = 'ALIPAY';
     public const WECHAT_PLATFORM = 'WECHAT';
+    public const APPLE_PLATFORM  = 'APPLE';
+
+    /**
+     * apple pay 正式环境与沙箱环境回执验证地址
+     */
+    public const APPLE_BUY_URL         = "https://buy.itunes.apple.com/verifyReceipt";
+    public const APPLE_BUY_SANDBOX_URL = "https://sandbox.itunes.apple.com/verifyReceipt";
 
     protected $casts = [
         'data' => 'array',

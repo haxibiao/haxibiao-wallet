@@ -36,6 +36,9 @@ trait RechargeResolvers
                 'total_fee'    => $amount * 100,
             ];
             $signature = Pay::wechat(config('pay.wechat'))->app($order)->getContent();
+        } else if ($platform == 'APPLE') {
+            // 苹果不需要签名唤起支付程序
+            $signature = null;
         }
 
         // 创建充值记录
@@ -49,27 +52,35 @@ trait RechargeResolvers
     /**
      * 效验苹果支付状态
      */
-    public static function ResolverVerifyApplePay($receipt, $trade_no)
+    public static function ResolverVerifyApplePay($receipt, $trade_no, $isSandBox)
     {
-        $sendData = '{"receipt-data":"' . $receipt . '"}';
+        $sendData = "{\"receipt-data\":\"$receipt\"}";
+        $url      = $isSandBox ? RechaRge::APPLE_BUY_SANDBOX_URL : RechaRge::APPLE_BUY_URL;
         try {
             $client = new Client();
-            $result = $client->request('post', "https://buy.itunes.apple.com/verifyReceipt", [
+            $result = $client->request('post', $url, [
                 'body' => $sendData,
             ])->getBody()->getContents();
             $data = json_decode($result, true);
-            info($data);
-            // 判断是否购买成功
+            // 购买成功
             if ($data['status'] == 0) {
-                return $data;
+                $appleProductId = data_get($data, 'receipt.in_app')[0]['product_id'];
+                $product        = Recharge::appleProductMap()[$appleProductId];
+                // 完成充值
+                $recharge = Recharge::completeRecharge($trade_no, Recharge::APPLE_PLATFORM, $product['amount'], $data);
+                return $recharge;
             } else {
-                throw new GQLException('未支付成功,请稍后再试~');
+                throw new GQLException('未支付成功,请稍后再试!');
             }
         } catch (GuzzleException $e) {
-            Log::error('Apple 验证支付失败', func_get_args());
+            $errorMsg = 'Apple 服务端验证支付失败';
+            Log::error($errorMsg, func_get_args());
+            throw new GQLException($errorMsg);
         } catch (\Exception $e) {
-            Log::error('apple 支付处理异常', func_get_args());
-            return false;
+            dd($e);
+            $errorMsg = 'apple 支付处理异常';
+            Log::error($errorMsg, func_get_args());
+            throw new GQLException($errorMsg);
         }
     }
 }
