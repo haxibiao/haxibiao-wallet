@@ -49,7 +49,7 @@ class PayController extends Controller
         if (data_get($data, 'result_code') == 'SUCCESS') {
             $trade_no = data_get($data, 'out_trade_no');
             // 微信金额单位为分
-            $amount = data_get($data, 'total_fee') * 100;
+            $amount = data_get($data, 'total_fee');
             // 充值
             Recharge::completeRecharge($trade_no, 'wechat', $amount, $data);
         } else {
@@ -58,11 +58,4 @@ class PayController extends Controller
         return $wechat->success();
     }
 
-    public function appleNotify(Request $request)
-    {
-        Log::info('apple', $request->all());
-        $receipt  = $request->post('receipt');
-        $trade_no = $request->post('trade_no');
-        return Recharge::ResolverVerifyApplePay($receipt, $trade_no);
-    }
 }
