@@ -49,7 +49,7 @@ class PayController extends Controller
         if (data_get($data, 'result_code') == 'SUCCESS') {
             $trade_no = data_get($data, 'out_trade_no');
             // 微信金额单位为分
-            $amount = data_get($data, 'total_fee');
+            $amount = data_get($data, 'total_fee') / 100;
             // 充值
             Recharge::completeRecharge($trade_no, 'wechat', $amount, $data);
         } else {
