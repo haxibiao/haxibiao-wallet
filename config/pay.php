@@ -17,7 +17,7 @@ return [
             'timeout'         => 30,
             'connect_timeout' => 30,
         ],
-        'mode'           => 'dev',
+        'mode'           => 'normal',
     ],
     'wechat' => [
         'appid'       => env('WECHAT_APPID'),
