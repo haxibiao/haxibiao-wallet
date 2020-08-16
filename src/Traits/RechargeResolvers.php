@@ -14,11 +14,11 @@ trait RechargeResolvers
      * 发起充值请求,获取交易平台提供的签名唤起app
      * 签名包含: 充值金额,内部交易标识,充值标题
      */
-    public static function rsolverGetRechargeSignature($amount, $platform)
+    public static function rsolverGetRechargeSignature($amount, $platform, $remark = null, $trade_no = null)
     {
         $user     = getUser();
-        $title    = sprintf('%s充值%s', config('app.name_cn'), $amount);
-        $trade_no = \str_random(30);
+        $title    = $remark ?? sprintf('%s充值%s', config('app.name_cn'), $amount);
+        $trade_no = $trade_no ?? \str_random(30);
         if ($platform == 'ALIPAY') {
             // 支付数据数组的key不能变!
             $order = [
