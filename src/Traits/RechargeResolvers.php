@@ -44,6 +44,7 @@ trait RechargeResolvers
         // 创建充值记录
         $recharge = Recharge::createRecharge($user->id, $trade_no, $title, $amount, $platform);
         return [
+            'recharge' => $recharge,
             $platform  => $signature,
             'trade_no' => $recharge->trade_no,
         ];

@@ -19,10 +19,12 @@ class Recharge extends Model
     /**
      * 充值成功 1
      * 充值失败 -1
+     * 已退款 -2
      * 等待支付 0（默认值）
      */
     public const RECHARGE_SUCCESS = 1;
     public const RECHARGE_FAIL    = -1;
+    public const RECHARGE_REFUND  = -2;
     public const WATING_PAY       = 0;
 
     /**
