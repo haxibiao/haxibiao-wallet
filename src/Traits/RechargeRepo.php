@@ -36,10 +36,17 @@ trait RechargeRepo
         // 有效充值订单
         if ($recharge->status == Recharge::WATING_PAY) {
             $user = $recharge->user;
+
             //充值成功后的逻辑
-            if (in_array(env("APP_NAME"), ['dazhuan_game'])) {
-                //答题赚钱小游戏，充值1块钱恢复全体力
-                $user->update(['ticket' => DB::raw('max_ticket')]);
+            if (env("APP_NAME") == 'dazhuan_game') {
+                //答题赚钱小游戏，充值1块钱恢复120体力
+                $user->update(['ticket' => DB::raw('ticket +' . $amount)]);
+            } else if (env("APP_NAME") == 'chutizhuanqian_ios') {
+                //体力全恢复
+                if ($amount == -1) {
+                    $user->ticket = $user->level->ticket_max;
+                    $user->save();
+                }
             } else {
                 Transaction::makeIncome($user->wallet, $amount, $platform . '充值', '充值', '已到账');
             }
@@ -72,7 +79,11 @@ trait RechargeRepo
             ],
             '123321' => [
                 'name'   => '120体力值',
-                'amount' => 1,
+                'amount' => 120,
+            ],
+            'com.tiantianchuti_01' => [
+                'name'   => '全体力恢复',
+                'amount' => -1,
             ],
         ];
     }
