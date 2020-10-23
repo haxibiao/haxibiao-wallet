@@ -3,8 +3,9 @@
 namespace Haxibiao\Wallet\Traits;
 
 use App\Transaction;
-use Haxibiao\Wallet\Recharge;
 use Yansongda\Pay\Log;
+use Haxibiao\Wallet\Recharge;
+use Illuminate\Support\Facades\DB;
 
 trait RechargeRepo
 {
@@ -35,8 +36,14 @@ trait RechargeRepo
         // 有效充值订单
         if ($recharge->status == Recharge::WATING_PAY) {
             $user = $recharge->user;
-            // 充值到账户
-            Transaction::makeIncome($user->wallet, $amount, $platform . '充值', '充值', '已到账');
+            //充值成功后的逻辑
+            if (in_array(env("APP_NAME"), ['dazhuan_game'])) {
+                //答题赚钱小游戏，充值1块钱恢复全体力
+                $user->update(['ticket' => DB::raw('max_ticket')]);
+            } else {
+                Transaction::makeIncome($user->wallet, $amount, $platform . '充值', '充值', '已到账');
+            }
+
             // 更新充值记录状态，保存交易平台回调数据
             $recharge->status = Recharge::RECHARGE_SUCCESS;
             $recharge->data   = $platfrom_data;
@@ -62,6 +69,10 @@ trait RechargeRepo
             'com.bianxiandaxue_28' => [
                 'name'   => '188学币',
                 'amount' => 188,
+            ],
+            '123321' => [
+                'name'   => '120体力值',
+                'amount' => 1,
             ],
         ];
     }
