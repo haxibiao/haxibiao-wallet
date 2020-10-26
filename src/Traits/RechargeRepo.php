@@ -85,6 +85,10 @@ trait RechargeRepo
                 'name'   => '全体力恢复',
                 'amount' => -1,
             ],
+             'com.tiantianchuti_03' => [
+                'name'   => '全体力恢复',
+                'amount' => -1,
+            ],
         ];
     }
 }
