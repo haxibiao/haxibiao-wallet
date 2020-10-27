@@ -78,7 +78,6 @@ trait RechargeResolvers
             Log::error($errorMsg, func_get_args());
             throw new GQLException($errorMsg);
         } catch (\Exception $e) {
-            dd($e);
             $errorMsg = 'apple 支付处理异常';
             Log::error($errorMsg, func_get_args());
             throw new GQLException($errorMsg);
