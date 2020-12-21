@@ -5,7 +5,7 @@ return [
         'app_id'              => env('ALIPAY_PAY_APPID'),
         'notify_url'          => env('APP_URL') . '/api/pay/alipay-notify',
         'return_url'          => env('APP_URL') . '/api/pay/alipay-return',
-        'private_key'         => file_get_contents('/etc/alipay/private_key'), //需要提前支付宝部署自己证书到服务器
+        'private_key'         => @file_get_contents('/etc/alipay/private_key'), //需要提前支付宝部署自己证书到服务器
         'ali_public_key'      => '/etc/alipay/alipayCertPublicKey_RSA2.crt',
         'app_cert_public_key' => '/etc/alipay/appCertPublicKey_2021001172621778.crt', //应用公钥证书路径
         'alipay_root_cert'    => '/etc/alipay/alipayRootCert.crt',
