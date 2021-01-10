@@ -1,17 +1,17 @@
 # haxibiao-wallet
 
-> haxibiao-lwallet是哈希表基于微信、支付宝、apple 开发的交易扩展包
+> haxibiao-wallet 是哈希表基于微信、支付宝、apple 开发的交易扩展包
 > 欢迎大家提交代码或提出建议
 
-
 ## 安装步骤
-1. `App/User`模型需要增加Trait: `use App\Traits\PlayWithWallet`;
-2. 执行 `git submodule add http://code.haxibiao.cn/packages/haxibiao-wallet packages/haxibiao/wallet`
-3. 将 `Haxibiao\Wallet\WalletServiceProvider::class,` 添加到 config/app.php
-4. 执行 `composer dump`
-5. 注意，请确保 config/pay.php 没有特殊的支付相关信息，否则请手动 merge 一下改动
-6. 执行 `php artisan wallet:install`
-7. 配置env文件以下几个参数值：
+
+1. `composer.json`改动如下：
+   在`repositories`中添加 vcs 类型远程仓库指向
+   `http://code.haxibiao.cn/packages/haxibiao-cms`
+2. 执行`composer require haxibiao/cms`
+3. 执行 `php artisan wallet:install`
+4. 配置 env 文件以下几个参数值：
+
 ```
 ALIPAY_PAY_APPID=
 WECHAT_APPID=
@@ -19,7 +19,9 @@ WECHAT_SECRET=
 WECHAT_PAY_KEY=
 WECHAT_PAY_MCH_ID=
 ```
-8. 配置`cert/alipay` 与 `cert/wechat` 相关支付配置信息，文件结构如下：
+
+5. 配置`cert/alipay` 与 `cert/wechat` 相关支付配置信息，文件结构如下：
+
 ```
 .
 ├── alipay
@@ -33,7 +35,7 @@ WECHAT_PAY_MCH_ID=
     └── apiclient_key.pem
 ```
 
-## GQL接口说明
+## GQL 接口说明
 
 #### Query
 
@@ -70,12 +72,12 @@ mutation{
 
 请注意：微信和支付宝的签名格式不同
 
-## Api接口说明
+## Api 接口说明
 
-|          路由          | 方式  |            说明            |
-| :--------------------: | :---: | :------------------------: |
-| /api/pay/alipay-notify |  any  | 支付宝交易结束回调（常用） |
-| /api/pay/wechat-notify |  any  |  微信交易结束回调（常用）  |
+|          路由          | 方式 |            说明            |
+| :--------------------: | :--: | :------------------------: |
+| /api/pay/alipay-notify | any  | 支付宝交易结束回调（常用） |
+| /api/pay/wechat-notify | any  |  微信交易结束回调（常用）  |
 
 ## 其他说明
 
