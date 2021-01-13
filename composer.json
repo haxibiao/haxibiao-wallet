@@ -1,32 +1,32 @@
 {
-  "name": "haxibiao/wallet",
-  "description": "哈希表交易模块",
-  "type": "project",
-  "license": "MIT",
-  "authors": [
-    {
-      "name": "zengdawei",
-      "email": "zengdawei@haxibiao.com"
+    "name": "haxibiao/wallet",
+    "description": "哈希表钱包和金融系统模块",
+    "type": "project",
+    "license": "MIT",
+    "authors": [
+        {
+            "name": "zengdawei",
+            "email": "zengdawei@haxibiao.com"
+        }
+    ],
+    "require": {},
+    "repositories": {},
+    "minimum-stability": "dev",
+    "autoload": {
+        "psr-4": {
+            "Haxibiao\\Wallet\\": "src/"
+        }
+    },
+    "autoload-dev": {
+        "classmap": [
+            "tests/"
+        ]
+    },
+    "extra": {
+        "laravel": {
+            "providers": [
+                "Haxibiao\\Wallet\\WalletServiceProvider"
+            ]
+        }
     }
-  ],
-  "require": {},
-  "repositories": {},
-  "minimum-stability": "dev",
-  "autoload": {
-    "psr-0": {
-      "Haxibiao\\Wallet\\": "src/"
-    }
-  },
-  "autoload-dev": {
-    "classmap": [
-      "tests/"
-    ]
-  },
-  "extra": {
-    "laravel": {
-      "providers": [
-        "Haxibiao\\Wallet\\WalletServiceProvider"
-      ]
-    }
-  }
 }
