@@ -2,7 +2,7 @@
 
 namespace Haxibiao\Wallet;
 
-use App\User;
+use Haxibiao\Breeze\User;
 use Haxibiao\Wallet\Traits\RechargeAttrs;
 use Haxibiao\Wallet\Traits\RechargeRepo;
 use Haxibiao\Wallet\Traits\RechargeResolvers;
