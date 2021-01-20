@@ -27,6 +27,7 @@ class WalletServiceProvider extends ServiceProvider
         Relation::morphMap([
             'recharges' => '\Haxibiao\Wallet\Recharge',
         ]);
+
         //安装时 vendor:publish 用
         if ($this->app->runningInConsole()) {
             // 注册 migrations.
@@ -36,11 +37,6 @@ class WalletServiceProvider extends ServiceProvider
             $this->publishes([
                 $this->app->make('path.haxibiao-wallet.config') . '/pay.php' => $this->app->configPath('pay.php'),
             ], 'wallet-config');
-
-            // 发布 Nova
-            $this->publishes([
-                __DIR__ . '/Nova' => base_path('app/Nova'),
-            ], 'wallet-nova');
 
             // 发布 graphql
             $this->publishes([

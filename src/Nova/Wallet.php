@@ -2,24 +2,24 @@
 
 namespace Haxibiao\Wallet\Nova;
 
-use Haxibiao\Wallet\Recharge as WalletRecharge;
 use Illuminate\Http\Request;
 use Laravel\Nova\Fields\BelongsTo;
 use Laravel\Nova\Fields\ID;
-use Laravel\Nova\Fields\KeyValue;
-use Laravel\Nova\Fields\Number;
 use Laravel\Nova\Fields\Select;
 use Laravel\Nova\Fields\Text;
 use Laravel\Nova\Resource;
 
-class Recharge extends Resource
+class Wallet extends Resource
 {
+
     /**
      * The model the resource corresponds to.
      *
      * @var string
      */
-    public static $model = 'Haxibiao\\Wallet\\Recharge';
+    public static $model = 'Haxibiao\Wallet\Wallet';
+
+    // public static $displayInNavigation = false;
 
     /**
      * The single value that should be used to represent the resource when being displayed.
@@ -34,9 +34,15 @@ class Recharge extends Resource
      * @var array
      */
     public static $search = [
-        'id', 'title', 'amount',
+        'id', 'real_name', 'pay_account',
     ];
 
+    public static function label()
+    {
+        return "钱包";
+    }
+
+    public static $group = '交易管理';
     /**
      * Get the fields displayed by the resource.
      *
@@ -48,12 +54,14 @@ class Recharge extends Resource
         return [
             ID::make()->sortable(),
             BelongsTo::make('用户', 'user', User::class),
-            Number::make('充值金额', 'amount')->sortable(),
-            Select::make('充值状态', 'status')->options(WalletRecharge::getPayStatuses())->displayUsingLabels(),
-            Select::make('交易平台', 'platform')->options(WalletRecharge::getPayPlatfroms())->displayUsingLabels(),
-            Text::make('充值标题', 'title'),
-            Text::make('交易订单号', 'trade_no')->hideFromIndex(),
-            KeyValue::make('交易平台回调数据', 'data')->hideFromIndex(),
+            Select::make('类型', 'type')->options([
+                0 => 'RMB钱包',
+                1 => '金币钱包',
+            ])->displayUsingLabels(),
+            Text::make('余额', 'balance'),
+            Text::make('提现账号', 'pay_account'),
+            Text::make('真实姓名', 'real_name'),
+            Text::make('提现总额', 'total_withdraw_amount'),
         ];
     }
 
@@ -76,7 +84,9 @@ class Recharge extends Resource
      */
     public function filters(Request $request)
     {
-        return [];
+        return [
+            new \App\Nova\Filters\Transaction\WalletType,
+        ];
     }
 
     /**

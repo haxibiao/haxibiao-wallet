@@ -34,11 +34,6 @@ class PublishCommand extends Command
         ]);
 
         $this->call('vendor:publish', [
-            '--tag'   => 'wallet-nova',
-            '--force' => $this->option('force'),
-        ]);
-
-        $this->call('vendor:publish', [
             '--tag'   => 'wallet-graphql',
             '--force' => $this->option('force'),
         ]);

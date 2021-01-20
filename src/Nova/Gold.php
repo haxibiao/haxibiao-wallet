@@ -2,24 +2,36 @@
 
 namespace Haxibiao\Wallet\Nova;
 
-use Haxibiao\Wallet\Recharge as WalletRecharge;
 use Illuminate\Http\Request;
 use Laravel\Nova\Fields\BelongsTo;
+use Laravel\Nova\Fields\DateTime;
 use Laravel\Nova\Fields\ID;
-use Laravel\Nova\Fields\KeyValue;
 use Laravel\Nova\Fields\Number;
-use Laravel\Nova\Fields\Select;
 use Laravel\Nova\Fields\Text;
 use Laravel\Nova\Resource;
 
-class Recharge extends Resource
+class Gold extends Resource
 {
     /**
      * The model the resource corresponds to.
      *
      * @var string
      */
-    public static $model = 'Haxibiao\\Wallet\\Recharge';
+    public static $model = 'Haxibiao\Wallet\Gold';
+
+    public static $with = ['user'];
+
+    public static $group = '交易管理';
+
+    public static function label()
+    {
+        return '智慧点';
+    }
+
+    public static function singularLabel()
+    {
+        return '智慧点';
+    }
 
     /**
      * The single value that should be used to represent the resource when being displayed.
@@ -34,7 +46,7 @@ class Recharge extends Resource
      * @var array
      */
     public static $search = [
-        'id', 'title', 'amount',
+        'id',
     ];
 
     /**
@@ -48,12 +60,10 @@ class Recharge extends Resource
         return [
             ID::make()->sortable(),
             BelongsTo::make('用户', 'user', User::class),
-            Number::make('充值金额', 'amount')->sortable(),
-            Select::make('充值状态', 'status')->options(WalletRecharge::getPayStatuses())->displayUsingLabels(),
-            Select::make('交易平台', 'platform')->options(WalletRecharge::getPayPlatfroms())->displayUsingLabels(),
-            Text::make('充值标题', 'title'),
-            Text::make('交易订单号', 'trade_no')->hideFromIndex(),
-            KeyValue::make('交易平台回调数据', 'data')->hideFromIndex(),
+            Number::make('智慧点', 'gold'),
+            Text::make('智慧余额', 'balance'),
+            Text::make('备注', 'remark'),
+            DateTime::make('创建时间', 'created_at'),
         ];
     }
 

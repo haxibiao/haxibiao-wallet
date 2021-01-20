@@ -14,7 +14,7 @@ class InstallCommand extends Command
      *
      * @var string
      */
-    protected $signature = 'wallet:install';
+    protected $signature = 'wallet:install {--force}';
 
     /**
      * The Console command description.
@@ -30,11 +30,13 @@ class InstallCommand extends Command
      */
     public function handle()
     {
+        $force = $this->option('force');
+
         $this->comment("复制 stubs ...");
-        copy(__DIR__ . '/stubs/Recharge.stub', app_path('Recharge.php'));
+        copyStubs(__DIR__, $force);
 
         $this->comment('发布资源...');
-        $this->call('wallet:publish', ['--force' => true]);
+        $this->call('wallet:publish', ['--force' => $force]);
 
         $this->comment('迁移数据库变化...');
         $this->call('migrate');
