@@ -9,7 +9,10 @@
             "email": "zengdawei@haxibiao.com"
         }
     ],
-    "require": {},
+    "require": {
+        "haxibiao/helpers": "*",
+        "haxibiao/config": "*"
+    },
     "repositories": {},
     "minimum-stability": "dev",
     "autoload": {
