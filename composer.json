@@ -10,6 +10,10 @@
         }
     ],
     "require": {
+        "php": "^7.3",
+        "laravel/framework": "^8.0",
+        "laravel/nova": "^3.8",
+        "nuwave/lighthouse": "^4.10",
         "haxibiao/helpers": "*",
         "haxibiao/config": "*"
     },
