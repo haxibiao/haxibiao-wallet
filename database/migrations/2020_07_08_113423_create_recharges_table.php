@@ -13,6 +13,9 @@ class CreateRechargesTable extends Migration
      */
     public function up()
     {
+        if (Schema::hasTable('recharges')) {
+            return;
+        }
         Schema::create('recharges', function (Blueprint $table) {
             $table->id();
             $table->unsignedInteger('user_id')->index()->comment('充值用户id');
