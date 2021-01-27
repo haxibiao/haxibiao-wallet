@@ -18,6 +18,8 @@ class Gold extends Model
         'updated_at',
     ];
 
+    const NEW_USER_REWARD_REASON = "新人注册奖励";
+
 //    点击 DRAW 广告的金币额度,
     //    const DRAW_GOLD_AMOUNT = 0;
 
