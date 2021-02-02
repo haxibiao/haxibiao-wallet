@@ -27,6 +27,7 @@ class CreateWithdrawsTable extends Migration
             $table->string('to_account')->nullable()->comment('提现账户');
             $table->string('to_platform')->nullable()->comment('支付平台');
             $table->unsignedInteger('rate')->nullable()->index()->comment('倍率');
+            $table->string('host', 20)->nullable()->comment('提现ip');
             $table->timestamps();
 
         });
