@@ -29,7 +29,6 @@ class Transaction extends Model
 
     public function wallet()
     {
-        //dd("bbbb");
         return $this->belongsTo(Wallet::class, 'wallet_id');
     }
 
