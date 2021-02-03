@@ -13,6 +13,9 @@ class CreateExchangeConfigsTable extends Migration
      */
     public function up()
     {
+        if(Schema::hasTable('exchange_configs')){
+            return;
+        }
         Schema::create('exchange_configs', function (Blueprint $table) {
             $table->bigIncrements('id');
             $table->integer('num')->index();
