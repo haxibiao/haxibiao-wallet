@@ -1,0 +1,16 @@
+query rechargesQuery($user_id: Int!){
+    recharges(user_id:$user_id){
+        data{
+            id
+            user{
+                id
+                name
+            }
+            title
+            trade_no
+            status
+            amount
+            platform
+        }
+    }
+}

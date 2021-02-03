@@ -1,0 +1,14 @@
+query rechargeQuery($trade_no: String!){
+    recharge(trade_no:$trade_no){
+        id
+        user{
+            id
+            name
+        }
+        title
+        trade_no
+        status
+        amount
+        platform
+    }
+}

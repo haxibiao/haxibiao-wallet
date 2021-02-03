@@ -1,0 +1,11 @@
+mutation getRechargeSignatureMutation(
+    $amount: Float!
+    $platform: TradingPlatform
+  ){
+      getRechargeSignature(amount:$amount,platform:$platform){
+        ALIPAY
+        APPLE
+        WECHAT
+        trade_no
+      }
+  }
