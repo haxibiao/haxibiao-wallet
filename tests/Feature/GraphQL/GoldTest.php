@@ -15,7 +15,7 @@ class GoldTest extends GraphQLTestCase
      */
     public function testGoldsQuery()
     {
-        $query  = file_get_contents(__DIR__ . '/gold/goldsQuery.gql');
+        $query  = file_get_contents(__DIR__ . '/Gold/goldsQuery.graphql');
         $user = User::factory()->create([
             'api_token' => str_random(60),
             'account'   => rand(10000000000, 99999999999),
