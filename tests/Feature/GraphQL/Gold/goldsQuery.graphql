@@ -1,6 +1,6 @@
 # 金币明细
 query goldsHistoryQuery($user_id: Int!, $page: Int) {
-    golds(user_id: $user_id, page: $page, orderBy: { column: "id", order: DESC }) {
+    golds(user_id: $user_id, page: $page, orderBy: { field: "id", order: DESC }) {
         paginatorInfo {
             currentPage
             hasMorePages
