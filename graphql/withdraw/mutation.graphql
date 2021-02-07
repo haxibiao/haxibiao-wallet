@@ -2,7 +2,7 @@ extend type Mutation @guard {
     createWithdraw(
         amount: Float!
         platform: Platform = ALIPAY @spread
-        useWithdrawBadges: Boolean = false @deprecated(reason: "随懂得赚的分离，这个属性废弃")
+        useWithdrawBadges: Boolean = false
     ): Withdraw @field(resolver: "App\\Withdraw@createWithdraw")
 }
 
