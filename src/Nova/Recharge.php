@@ -14,35 +14,18 @@ use Laravel\Nova\Resource;
 
 class Recharge extends Resource
 {
-    /**
-     * The model the resource corresponds to.
-     *
-     * @var string
-     */
-    public static $model = 'Haxibiao\\Wallet\\Recharge';
-
-    /**
-     * The single value that should be used to represent the resource when being displayed.
-     *
-     * @var string
-     */
-    public static $title = 'id';
-
-    /**
-     * The columns that should be searched.
-     *
-     * @var array
-     */
+    public static $model  = 'Haxibiao\\Wallet\\Recharge';
+    public static $title  = 'id';
     public static $search = [
         'id', 'title', 'amount',
     ];
 
-    /**
-     * Get the fields displayed by the resource.
-     *
-     * @param  \Illuminate\Http\Request  $request
-     * @return array
-     */
+    public static $group = '交易中心';
+    public static function label()
+    {
+        return '充值';
+    }
+
     public function fields(Request $request)
     {
         return [

@@ -11,27 +11,12 @@ use Laravel\Nova\Fields\Text;
 
 class Transaction extends Resource
 {
-    /**
-     * The model the resource corresponds to.
-     *
-     * @var string
-     */
     public static $model = 'Haxibiao\Wallet\Transaction';
 
     public static $displayInNavigation = false;
 
-    /**
-     * The single value that should be used to represent the resource when being displayed.
-     *
-     * @var string
-     */
     public static $title = 'id';
 
-    /**
-     * The columns that should be searched.
-     *
-     * @var array
-     */
     public static $search = [
         'id', 'name',
     ];
@@ -41,13 +26,8 @@ class Transaction extends Resource
         return "账单";
     }
 
-    public static $group = '交易管理';
-    /**
-     * Get the fields displayed by the resource.
-     *
-     * @param  \Illuminate\Http\Request  $request
-     * @return array
-     */
+    public static $group = '交易中心';
+
     public function fields(Request $request)
     {
         return [
