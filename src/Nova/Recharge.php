@@ -2,6 +2,7 @@
 
 namespace Haxibiao\Wallet\Nova;
 
+use Haxibiao\Breeze\Nova\User;
 use Haxibiao\Wallet\Recharge as WalletRecharge;
 use Illuminate\Http\Request;
 use Laravel\Nova\Fields\BelongsTo;
