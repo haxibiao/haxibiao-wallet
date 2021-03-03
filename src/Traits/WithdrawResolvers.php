@@ -2,11 +2,12 @@
 
 namespace Haxibiao\Wallet\Traits;
 
+use App\User;
 use App\Jobs\ProcessWithdraw;
-use GraphQL\Type\Definition\ResolveInfo;
-use Haxibiao\Breeze\Exceptions\GQLException;
 use Haxibiao\Task\Contribute;
 use Haxibiao\Wallet\Withdraw;
+use GraphQL\Type\Definition\ResolveInfo;
+use Haxibiao\Breeze\Exceptions\GQLException;
 use Nuwave\Lighthouse\Support\Contracts\GraphQLContext;
 
 trait WithdrawResolvers
@@ -15,7 +16,7 @@ trait WithdrawResolvers
     {
         //throw_if(true, UserException::class, '提现正在维护中，望请谅解~');
         $user = \getUser();
-        throw_if($user->is_disable, GQLException::class, '账号异常!');
+        throw_if($user->is_disable|| $user->status == User::STATUS_FREEZE, GQLException::class, '账号异常!');
 
         $amount   = $args['amount'];
         $platform = $args['platform'];
@@ -65,11 +66,11 @@ trait WithdrawResolvers
                 //                Contribute::makeOutCome($user->id,$withdraw->id,$needContributes,'withdraws','提现兑换');
 
                 //加入延时1小时提现队列
-                dispatch_now(new ProcessWithdraw($withdraw))->delay(now()->addMinutes(rand(50, 60))); //不再手快者得
+                dispatch(new ProcessWithdraw($withdraw))->delay(now()->addMinutes(rand(50, 60))); //不再手快者得
 
             } else {
                 //加入秒提现队列
-                dispatch_now(new ProcessWithdraw($withdraw));
+                dispatch(new ProcessWithdraw($withdraw));
             }
             return $withdraw;
         } else {
