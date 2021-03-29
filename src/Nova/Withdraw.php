@@ -2,12 +2,13 @@
 
 namespace Haxibiao\Wallet\Nova;
 
-use Illuminate\Http\Request;
-use Laravel\Nova\Fields\DateTime;
-use Laravel\Nova\Fields\ID;
-use Laravel\Nova\Fields\Select;
-use Laravel\Nova\Fields\Text;
 use Laravel\Nova\Resource;
+use Laravel\Nova\Fields\ID;
+use Illuminate\Http\Request;
+use Laravel\Nova\Fields\Text;
+use Laravel\Nova\Fields\Select;
+use Laravel\Nova\Fields\DateTime;
+use Haxibiao\Wallet\Nova\Filters\WithDrawStatusType;
 
 class Withdraw extends Resource
 {
@@ -59,11 +60,11 @@ class Withdraw extends Resource
     public function cards(Request $request)
     {
         return [
-            (new \Hxb\CategoryCount\CategoryCount)
-                ->withName("提现排行前十个用户统计")
-                ->withLegend("提现金额")
-                ->withColor("#E6E61A")
-                ->withData(\App\User::getTopWithDraw(10)),
+            // (new \Hxb\CategoryCount\CategoryCount)
+            //     ->withName("提现排行前十个用户统计")
+            //     ->withLegend("提现金额")
+            //     ->withColor("#E6E61A")
+            //     ->withData(\App\User::getTopWithDraw(10)),
         ];
     }
 
@@ -76,7 +77,7 @@ class Withdraw extends Resource
     public function filters(Request $request)
     {
         return [
-            new \App\Nova\Filters\Transaction\WithDrawStatusType,
+            new WithDrawStatusType,
         ];
     }
 

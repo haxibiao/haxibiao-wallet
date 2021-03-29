@@ -2,6 +2,7 @@
 
 namespace Haxibiao\Wallet\Nova;
 
+use App\Nova\User;
 use Illuminate\Http\Request;
 use Laravel\Nova\Fields\BelongsTo;
 use Laravel\Nova\Fields\DateTime;
@@ -29,7 +30,7 @@ class Exchange extends Resource
     {
         return [
             ID::make()->sortable(),
-            BelongsTo::make('用户', 'user', User::class),
+            BelongsTo::make('用户','user',User::class),
             Number::make('智慧点', 'gold'),
             Text::make('兑换比率', 'exchange_rate'),
             Text::make('智慧点余额', 'gold_balance'),

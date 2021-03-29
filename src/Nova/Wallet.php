@@ -2,12 +2,14 @@
 
 namespace Haxibiao\Wallet\Nova;
 
-use Illuminate\Http\Request;
-use Laravel\Nova\Fields\BelongsTo;
-use Laravel\Nova\Fields\ID;
-use Laravel\Nova\Fields\Select;
-use Laravel\Nova\Fields\Text;
+use App\Nova\User;
 use Laravel\Nova\Resource;
+use Laravel\Nova\Fields\ID;
+use Illuminate\Http\Request;
+use Laravel\Nova\Fields\Text;
+use Laravel\Nova\Fields\Select;
+use Laravel\Nova\Fields\BelongsTo;
+use Haxibiao\Wallet\Nova\Filters\WalletType;
 
 class Wallet extends Resource
 {
@@ -63,7 +65,7 @@ class Wallet extends Resource
     public function filters(Request $request)
     {
         return [
-            new \App\Nova\Filters\Transaction\WalletType,
+            new WalletType,
         ];
     }
 
