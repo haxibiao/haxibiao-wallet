@@ -35,7 +35,7 @@ class WalletServiceProvider extends ServiceProvider
 
             // 发布配置文件.
             $this->publishes([
-                $this->app->make('path.haxibiao-wallet.config') . '/pay.php' => $this->app->configPath('pay.php'),
+                $this->app->make('path.haxibiao-wallet.config') => $this->app->configPath('/'),
             ], 'wallet-config');
 
             // 发布 graphql
@@ -90,10 +90,14 @@ class WalletServiceProvider extends ServiceProvider
         $this->bindPathsInContainer();
 
         // Merge config.
-        $this->mergeConfigFrom(
-            $this->app->make('path.haxibiao-wallet.config') . '/pay.php',
-            'pay'
-        );
+        if (!app()->configurationIsCached()) {
+            $this->mergeConfigFrom(
+                $this->app->make('path.haxibiao-wallet.config') . '/withdraw.php', 'withdraw'
+            );
+            $this->mergeConfigFrom(
+                $this->app->make('path.haxibiao-wallet.config') . '/pay.php', 'pay'
+            );
+        }
     }
 
     /**

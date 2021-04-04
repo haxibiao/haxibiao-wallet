@@ -2,12 +2,12 @@
 
 namespace Haxibiao\Wallet\Traits;
 
-use App\User;
 use App\Jobs\ProcessWithdraw;
-use Haxibiao\Task\Contribute;
-use Haxibiao\Wallet\Withdraw;
+use App\User;
 use GraphQL\Type\Definition\ResolveInfo;
 use Haxibiao\Breeze\Exceptions\GQLException;
+use Haxibiao\Task\Contribute;
+use Haxibiao\Wallet\Withdraw;
 use Nuwave\Lighthouse\Support\Contracts\GraphQLContext;
 
 trait WithdrawResolvers
@@ -16,7 +16,7 @@ trait WithdrawResolvers
     {
         //throw_if(true, UserException::class, '提现正在维护中，望请谅解~');
         $user = \getUser();
-        throw_if($user->is_disable|| $user->status == User::STATUS_FREEZE, GQLException::class, '账号异常!');
+        throw_if($user->is_disable || $user->status == User::STATUS_FREEZE, GQLException::class, '账号异常!');
 
         $amount   = $args['amount'];
         $platform = $args['platform'];
@@ -65,12 +65,20 @@ trait WithdrawResolvers
                 //                $needContributes = User::getAmountNeedDayContributes($amount);
                 //                Contribute::makeOutCome($user->id,$withdraw->id,$needContributes,'withdraws','提现兑换');
 
-                //加入延时1小时提现队列
-                dispatch(new ProcessWithdraw($withdraw))->delay(now()->addMinutes(rand(50, 60))); //不再手快者得
+                if (config('withdraw.rate') > 1) {
+                    //非网赚项目，比例大，不秒提现
+                } else {
+                    //加入延时1小时提现队列
+                    dispatch(new ProcessWithdraw($withdraw))->delay(now()->addMinutes(rand(50, 60))); //不再手快者得
+                }
 
             } else {
-                //加入秒提现队列
-                dispatch(new ProcessWithdraw($withdraw));
+                if (config('withdraw.rate') > 1) {
+                    //非网赚项目，比例大，不秒提现
+                } else {
+                    //加入秒提现队列
+                    dispatch(new ProcessWithdraw($withdraw));
+                }
             }
             return $withdraw;
         } else {
@@ -124,9 +132,12 @@ trait WithdrawResolvers
             $doubleHighWithdrawCardsCount    = $user->doubleHighWithdrawCardsCount;
         }
 
+        //非网赚项目,提现可比例放大倍数
+        $withdraw_rate = config('withdraw.rate') ?? 1;
+
         $withdrawInfo = [
             [
-                'amount'                => $minAmount,
+                'amount'                => $minAmount * $withdraw_rate,
                 'description'           => '新人福利',
                 'tips'                  => '秒到账',
                 'fontColor'             => '#FFA200',
@@ -134,7 +145,7 @@ trait WithdrawResolvers
                 'highWithdrawCardsRate' => null,
             ],
             [
-                'amount'                => 0.5,
+                'amount'                => 0.5 * $withdraw_rate,
                 'description'           => $contribute * 0.5 . '日活跃',
                 'tips'                  => '秒到账',
                 'fontColor'             => '#A0A0A0',
@@ -142,7 +153,7 @@ trait WithdrawResolvers
                 'highWithdrawCardsRate' => null,
             ],
             [
-                'amount'                => 1,
+                'amount'                => 1 * $withdraw_rate,
                 'description'           => $contribute * 1 . '日活跃',
                 'tips'                  => '限量抢',
                 'fontColor'             => '#A0A0A0',
@@ -151,7 +162,7 @@ trait WithdrawResolvers
 
             ],
             [
-                'amount'                => 3,
+                'amount'                => 3 * $withdraw_rate,
                 'description'           => $contribute * 3 . '日活跃',
                 'tips'                  => '限量抢',
                 'fontColor'             => '#A0A0A0',
@@ -159,7 +170,7 @@ trait WithdrawResolvers
                 'highWithdrawCardsRate' => $fiveTimesHighWithdrawCardsCount,
             ],
             [
-                'amount'                => 5,
+                'amount'                => 5 * $withdraw_rate,
                 'description'           => $contribute * 5 . '日活跃',
                 'tips'                  => '限量抢',
                 'fontColor'             => '#A0A0A0',
