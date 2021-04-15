@@ -2,11 +2,12 @@
 
 namespace Haxibiao\Wallet;
 
-use Haxibiao\Wallet\Console\InstallCommand;
-use Haxibiao\Wallet\Console\PublishCommand;
-use Illuminate\Database\Eloquent\Relations\Relation;
 use Illuminate\Support\Facades\Route;
 use Illuminate\Support\ServiceProvider;
+use Haxibiao\Wallet\Console\InstallCommand;
+use Haxibiao\Wallet\Console\PublishCommand;
+use Haxibiao\Wallet\Console\DealWaitingWithdraw;
+use Illuminate\Database\Eloquent\Relations\Relation;
 
 class WalletServiceProvider extends ServiceProvider
 {
@@ -64,6 +65,7 @@ class WalletServiceProvider extends ServiceProvider
         $this->commands([
             InstallCommand::class,
             PublishCommand::class,
+            DealWaitingWithdraw::class,
         ]);
     }
 
