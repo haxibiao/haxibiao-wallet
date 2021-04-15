@@ -29,14 +29,14 @@ class DealWaitingWithdraw extends Command
     public function handle()
     {
         //查询出超过24小时的提现待处理订单
-        Withdraw::where('status', Withdraw::WAITING_WITHDRAW)->where('created_at', '>=', now()->subDay(1))
-            ->chunk(100, function ($withdraws) use (&$count) {
+        Withdraw::where('status', Withdraw::WAITING_WITHDRAW)->where('created_at', '<=', now()->subDay(1))
+            ->chunk(100, function ($withdraws) {
                 foreach ($withdraws as $withdraw) {
                     //创建交易记录，金币原路退回
                     $remark = '系统错误,提现失败,请重新尝试！';
                     $withdraw->processingFailedWithdraw($remark);
-                    $this->info('Withdraw Id:' . $withdraw->id . ' 提现');
-                    info('Withdraw Id:' . $withdraw->id . ' push queue success');
+                    $this->info('Withdraw Id:' . $withdraw->id . ' 提现待处理修改为提现失败');
+                    info('Withdraw Id:' . $withdraw->id . '提现待处理修改为提现失败');
 
                     //发送系统消息提醒提现失败
                     Notice::addNotice(
