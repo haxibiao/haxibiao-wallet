@@ -43,7 +43,7 @@ class DealWaitingWithdraw extends Command
                         [
                             'title'      => '提现失败通知',
                             'content'    => "您好，当前时段提现通道异常，技术人员正在紧急修复中，金币已原路退回，请稍后重试",
-                            'to_user_id' => $withdraw->wallet->user,
+                            'to_user_id' => $withdraw->wallet->user->id,
                             'user_id'    => 1,
                             'type'       => Notice::DEDUCTION,
                         ]
