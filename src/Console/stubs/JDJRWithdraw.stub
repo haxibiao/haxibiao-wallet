@@ -1,0 +1,10 @@
+<?php
+
+namespace App;
+
+use Haxibiao\Wallet\JDJRWithdraw as BaseJDJRWithdraw;
+
+class JDJRWithdraw extends BaseJDJRWithdraw
+{
+
+}

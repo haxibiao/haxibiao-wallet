@@ -3,10 +3,14 @@
 namespace Haxibiao\Wallet;
 
 use Haxibiao\Breeze\User;
+use Haxibiao\Wallet\Traits\ExchangeRepo;
+use Haxibiao\Wallet\Traits\ExchangeResolvers;
 use Illuminate\Database\Eloquent\Model;
 
 class Exchange extends Model
 {
+    use ExchangeRepo;
+    use ExchangeResolvers;
     protected $fillable = [
         'user_id',
         'gold',
@@ -17,23 +21,24 @@ class Exchange extends Model
         'updated_at',
     ];
 
-    const RATE = 500;
+    //兑换汇率
+    const RATE = 600;
 
-    const MIN_RMB = 0.3;
+    const MIN_RMB = 1;
 
     public function user()
     {
-        return $this->belongsTo(User::class);
+        return $this->belongsTo(\App\User::class);
     }
 
     public static function computeAmount($gold)
     {
-        return $gold / self::RATE;
+        return $gold / Exchange::RATE;
     }
 
     public static function computeGold($amount)
     {
-        return $amount * self::RATE;
+        return $amount * Exchange::RATE;
     }
 
     // 兑入
@@ -43,7 +48,7 @@ class Exchange extends Model
         return Exchange::create([
             'user_id'       => $user->id,
             'gold'          => $gold,
-            'gold_balance'  => $user->gold - $gold,
+            'gold_balance'  => $user->gold,
             'rmb'           => $rmb,
             'exchange_rate' => Exchange::RATE,
         ]);
@@ -57,7 +62,7 @@ class Exchange extends Model
         return Exchange::create([
             'user_id'       => $user->id,
             'gold'          => $gold,
-            'gold_balance'  => $user->gold + $gold,
+            'gold_balance'  => $user->gold,
             'rmb'           => $rmb,
             'exchange_rate' => Exchange::RATE,
         ]);

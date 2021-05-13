@@ -2,88 +2,20 @@
 
 namespace Haxibiao\Wallet\Traits;
 
-use App\Jobs\ProcessWithdraw;
 use App\User;
 use GraphQL\Type\Definition\ResolveInfo;
-use Haxibiao\Breeze\Exceptions\GQLException;
 use Haxibiao\Task\Contribute;
+use Haxibiao\Wallet\Wallet;
 use Haxibiao\Wallet\Withdraw;
+use Illuminate\Support\Arr;
 use Nuwave\Lighthouse\Support\Contracts\GraphQLContext;
 
 trait WithdrawResolvers
 {
-    public function createWithdraw($rootValue, array $args, GraphQLContext $context, ResolveInfo $resolveInfo)
+    public function resolverSetWalletInfo($root, $args, $context, $info)
     {
-        //throw_if(true, UserException::class, '提现正在维护中，望请谅解~');
-        $user = \getUser();
-        throw_if($user->is_disable || $user->status == User::STATUS_FREEZE, GQLException::class, '账号异常!');
-
-        $amount   = $args['amount'];
-        $platform = $args['platform'];
-        $wallet   = $user->wallet;
-
-        // 限制提现时间段
-        Withdraw::checkWithdrawTime();
-
-        // 检查时间和限量抢限流控制并发
-        Withdraw::checkHighWithdraw($user, $amount);
-
-        //        // 检查版本 2.9.7
-        //        Withdraw::checkWithdrawVersion(getAppVersion());
-
-        // 预防新用户快速请求提现，和一日重复提现
-        Withdraw::checkLastWithdrawTime($wallet);
-
-        //检查钱包绑定
-        Withdraw::checkWalletInfo($wallet, $platform);
-
-        // 成功提现次数限制
-        if (!is_testing_env()) {
-            throw_if(!$wallet->availableWithdrawCount, GQLException::class, '今日提次数已达上限!');
-        }
-
-        //提现老刷子随机提现
-        if ($wallet->total_withdraw_amount > 10) {
-            throw_if(random_int(1, 10) > 2, GQLException::class, '当前提现人数过多，请晚些再来提现吧~');
-        }
-
-        // 可提现策略检查
-        Withdraw::canWithdraw($user, $wallet, $amount, $platform);
-        //如果是新人(未提现过），则预先进行余额转换
-        if (!$user->isWithdrawBefore()) {
-            $user->startExchageChangeToWallet();
-        }
-
-        if ($wallet->isCanWithdraw($amount)) {
-            //创建提现记录
-            $withdraw = Withdraw::createWithdrawWithWallet($wallet, $amount, $platform);
-            //限量抢成功了，扣除限量抢额度
-            if ($amount > 0.5) {
-                $user->decrement('withdraw_lines', $amount);
-
-                // 扣除贡献点
-                //                $needContributes = User::getAmountNeedDayContributes($amount);
-                //                Contribute::makeOutCome($user->id,$withdraw->id,$needContributes,'withdraws','提现兑换');
-
-                if (config('withdraw.rate') > 1) {
-                    //非网赚项目，比例大，不秒提现
-                } else {
-                    //加入延时1小时提现队列
-                    dispatch(new ProcessWithdraw($withdraw))->delay(now()->addMinutes(rand(50, 60))); //不再手快者得
-                }
-
-            } else {
-                if (config('withdraw.rate') > 1) {
-                    //非网赚项目，比例大，不秒提现
-                } else {
-                    //加入秒提现队列
-                    dispatch(new ProcessWithdraw($withdraw));
-                }
-            }
-            return $withdraw;
-        } else {
-            throw new GQLException('账户余额不足,请稍后再试!');
-        }
+        app_track_event("个人中心", "设置钱包信息");
+        return Wallet::setInfo(getUser(), $args['input']);
     }
 
     public function resolveWithdraws($rootValue, array $args, GraphQLContext $context, ResolveInfo $resolveInfo)
@@ -190,4 +122,75 @@ trait WithdrawResolvers
 
         return $withdrawInfo;
     }
+
+    public function resolveCreateWithdraw($root, $args, $context, $info)
+    {
+        $user     = \getUser();
+        $amount   = Arr::get($args, 'amount', 0);
+        $platform = $args['platform'];
+        $type     = $args['type'] ?? Withdraw::FIXED_TYPE;
+        $withdraw = Withdraw::createWithdraw($user, $amount, $platform, $type);
+        return (int) !is_null($withdraw); //兼容老版本，返回int
+    }
+
+    public function resolveCreateNewWithdraw($root, $args, $context, $info)
+    {
+        $user     = \getUser();
+        $amount   = Arr::get($args, 'amount', 0);
+        $platform = $args['platform'];
+        $type     = $args['type'] ?? Withdraw::FIXED_TYPE;
+        $withdraw = Withdraw::createWithdraw($user, $amount, $platform, $type);
+
+        return $withdraw;
+    }
+
+    public function resolverWithdraws($root, $args, $context, $info)
+    {
+        $user = \getUser();
+        return $user->withdraws();
+    }
+
+    public function resolveExchangeBalance(User $user, $gold)
+    {
+        //TODO: fix this
+
+    }
+
+    public function resolveWithdrawOptions($root, $args, $context, $info)
+    {
+        $user = getUser();
+
+        return $user->withdrawOptions;
+    }
+
+    public function resolveDailyWithdrawNotice($root, $args, $context, $info)
+    {
+        $limit    = $args['limit'];
+        $data     = [];
+        $profiles = Withdraw::with('user')
+            ->where('amount', '>', 0.5)
+            ->latest('id')
+            ->take($limit)
+            ->get()
+            ->each(function ($item) use (&$data) {
+                $user = $item->user;
+                if (!is_null($user)) {
+                    $account = $this->subStrCut($user->account);
+                    $data[]  = sprintf('用户%s今日成功提现%s元', $account, $item->amount);
+                }
+            });
+
+        shuffle($data);
+
+        return $data;
+    }
+
+    public function subStrCut($user_name)
+    {
+        $strlen   = mb_strlen($user_name, 'utf-8');
+        $firstStr = mb_substr($user_name, 0, 1, 'utf-8');
+        $lastStr  = mb_substr($user_name, -1, 1, 'utf-8');
+        return $strlen == 2 ? $firstStr . str_repeat('*', mb_strlen($user_name, 'utf-8') - 1) : $firstStr . str_repeat("*", $strlen - 2) . $lastStr;
+    }
+
 }

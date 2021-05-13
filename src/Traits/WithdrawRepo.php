@@ -2,8 +2,9 @@
 
 namespace Haxibiao\Wallet\Traits;
 
+use App\User;
 use Carbon\Carbon;
-use Haxibiao\Breeze\User;
+use Haxibiao\Breeze\ErrorLog;
 use Haxibiao\Helpers\utils\PayUtils;
 use Haxibiao\Wallet\Exchange;
 use Haxibiao\Wallet\Gold;
@@ -78,76 +79,6 @@ trait WithdrawRepo
         }
     }
 
-    //处理该笔提现
-    public function process()
-    {
-        $withdraw = $this;
-        $wallet   = $this->wallet;
-        $user     = $wallet->user;
-        $wallet   = $this->wallet;
-        $platform = $this->to_platform;
-        $amount   = $this->amount;
-
-        //用户被禁用
-        if (empty($withdraw) || empty($user) || $user->is_disable || empty($wallet)) {
-            $this->processingFailedWithdraw("账号已被禁用");
-            return null;
-        }
-
-        //提现待处理 && 非刷子 && 测试号
-        if ($withdraw->isWaiting()) {
-            //判断余额
-            if ($wallet->balance < $withdraw->amount) {
-                return $this->IllegalWithdraw('余额不足,非法订单！');
-            }
-
-            // 简单后置处理并发提现请求
-            if ($wallet->todaySuccessWithdrawCount > 0) {
-                $this->processingFailedWithdraw('提现失败,今日提次数已达上限!');
-            } else {
-                $transferResult = $this->makingTransfer($withdraw, $wallet);
-
-                //未知异常,直接处理完成
-                if (empty($transferResult)) {
-                    return null;
-                }
-
-                if (isset($transferResult['order_id'])) {
-                    //转账成功
-                    $this->processingSucceededWithdraw($transferResult['order_id']);
-                } else {
-                    //转账失败
-                    $remark = $transferResult['failed_msg'] ?? '系统错误,提现失败,请重新尝试！';
-                    $this->processingFailedWithdraw($remark);
-                }
-            }
-
-            //写入文件储存
-            $this->writeWithdrawStorage();
-        }
-    }
-
-    private function makingTransfer($withdraw, $wallet)
-    {
-        $result   = null;
-        $outBizNo = $withdraw->biz_no;
-        $platform = $withdraw->to_platform;
-        $realName = $wallet->real_name;
-        $remark   = sprintf('【%s】%s', config('app.name_cn'), '提现');
-        $amount   = $withdraw->amount;
-        $payId    = $withdraw->to_account;
-
-        //懂得赚提现
-        try {
-            //支付宝、微信平台提现
-            $result = $this->transferPayPlatform($outBizNo, $payId, $realName, $amount, $remark, $platform);
-        } catch (\Exception $ex) {
-            $result = null;
-            Log::channel('withdraws')->error($ex);
-        }
-        return $result;
-    }
-
     public function transferPayPlatform($outBizNo, $payId, $realName, $amount, $remark, $platform)
     {
         $result = [];
@@ -162,6 +93,7 @@ trait WithdrawRepo
         Log::channel('withdraws')->info($transferResult);
 
         //处理支付响应
+
         if ($platform == Withdraw::WECHAT_PLATFORM) {
             //微信余额不足
             if (Arr::get($transferResult, 'err_code') != 'NOTENOUGH') {
@@ -237,7 +169,7 @@ trait WithdrawRepo
     private function makeDongdezhuanTransfer(User $user)
     {
         //重构到DDZ下面
-        return \DDZUser::withdraw($user, $this->amount, self::getOrderNum());
+        return \DDZUser::withdraw($user, $this->amount, Withdraw::getOrderNum());
     }
 
     /**
@@ -374,5 +306,111 @@ trait WithdrawRepo
         }
 
         Storage::disk('local')->append($file, $log);
+    }
+
+    public static function getNovaFilterAmount()
+    {
+        return [0.3, 0.5, 1, 3, 5, 10, 20];
+    }
+
+    public static function isWhiteListMemeber($userId)
+    {
+        return in_array($userId, Withdraw::getUserIdWhiteList());
+    }
+
+    public function notifyToArray()
+    {
+        return ['withdraw_id' => $this->id];
+    }
+
+    public function isSuccess()
+    {
+        return $this->status == Withdraw::SUCCESS_STATUS;
+    }
+
+    public function isWaiting()
+    {
+        return $this->status == Withdraw::WATING_STATUS;
+    }
+
+    public function isFailed()
+    {
+        return $this->status == Withdraw::FAILED_STATUS;
+    }
+
+    public static function getStatuses()
+    {
+        return [
+            Withdraw::SUCCESS_STATUS => '提现成功',
+            Withdraw::FAILED_STATUS  => '提现失败',
+            Withdraw::WATING_STATUS  => '待处理',
+        ];
+    }
+
+    public static function getTypes()
+    {
+        return [
+            Withdraw::RANDOM_TYPE          => '随机金额提现',
+            Withdraw::FIXED_TYPE           => '固定金额提现',
+            Withdraw::INVITE_ACTIVITY_TYPE => '邀请活动金额提现',
+            Withdraw::LUCKYDRAW_TYPE       => '高额抽奖活动金额提现',
+        ];
+    }
+
+    public static function getPlatformEnumTypes()
+    {
+        return [
+            Withdraw::ALIPAY_PLATFORM => [
+                'value'       => Withdraw::ALIPAY_PLATFORM,
+                'description' => '支付宝',
+            ],
+            Withdraw::WECHAT_PLATFORM => [
+                'value'       => Withdraw::WECHAT_PLATFORM,
+                'description' => '微信',
+            ],
+            Withdraw::DDZ_PLATFORM    => [
+                'value'       => Withdraw::DDZ_PLATFORM,
+                'description' => '懂得赚',
+            ],
+            Withdraw::DM_PLATFORM     => [
+                'value'       => Withdraw::DM_PLATFORM,
+                'description' => '答妹',
+            ],
+        ];
+    }
+
+    /**
+     * 用户白名单(暂时硬编码)
+     *
+     * @return void
+     */
+    public static function getUserIdWhiteList(): ?array
+    {
+        // 从白名单中获取账号
+        $accounts = \App\WhiteUser::query()->select('account')->get()->pluck('account')->toArray();
+        $userIDs  = User::whereIn('account', $accounts)->select('id')->get()->pluck('id')->toArray();
+        return $userIDs;
+    }
+
+    public function platformIs($platform)
+    {
+        return $this->to_platform == $platform;
+    }
+
+    public function isInviteActivityType()
+    {
+        return $this->type == Withdraw::INVITE_ACTIVITY_TYPE;
+    }
+
+    public static function balanceSpendSmsNotice($to_platform, $msg)
+    {
+        //qq、微信、支付宝
+        if (in_array($to_platform, [Withdraw::ALIPAY_PLATFORM, Withdraw::QQ_PLATFORM, Withdraw::WECHAT_PLATFORM])) {
+            $waitWithdrawCount = Withdraw::query()->wating()->where('to_platform', $to_platform)->count();
+            //每一个因为【余额不足】提现失败都发送信息太烦人了，隔50个发一次
+            if ($waitWithdrawCount % 50 == 0) {
+                ErrorLog::errorSms(($msg));
+            }
+        }
     }
 }

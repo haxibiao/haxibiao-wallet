@@ -2,109 +2,48 @@
 
 namespace Haxibiao\Wallet\Traits;
 
+use App\User;
 use Haxibiao\Breeze\Exceptions\GQLException;
-use Haxibiao\Breeze\User;
+use Haxibiao\Breeze\OAuth;
+use Haxibiao\Question\Jobs\ProcessWithdraw;
+use Haxibiao\Wallet\Exchange;
+use Haxibiao\Wallet\Wallet;
 use Haxibiao\Wallet\Withdraw;
+use Illuminate\Support\Arr;
+use Illuminate\Support\Facades\DB;
 
 trait WithdrawFacade
 {
     /**
+     * 提现记录
+     */
+    public static function listWithdraws($offset, $limit)
+    {
+        $user      = getUser();
+        $wallet    = $user->wallet;
+        $withdraws = [];
+
+        if (!is_null($wallet)) {
+            $withdraws = Withdraw::getWithdraws($wallet, $offset, $limit);
+        }
+        return $withdraws;
+    }
+
+    /**
      * 从某个钱包提现
      */
-    public static function createWithdrawWithWallet($wallet, $amount, $platform)
+    public static function createWithdrawWithWallet($wallet, $amount, $platform, $type = Withdraw::FIXED_TYPE)
     {
         return Withdraw::create([
+            'user_id'     => $wallet->user_id,
             'wallet_id'   => $wallet->id,
             'amount'      => $amount,
-            'to_account'  => $wallet->getPayId($platform),
+            // fix:后面需要优化掉这个梗
+            'to_account'  => $wallet->getPayId($platform) ?: $wallet->user->wallet->getPayId($platform),
+            'host'        => gethostname(),
             'to_platform' => $platform,
+            'type'        => $type,
         ]);
-    }
-
-    public static function checkWithdrawTime()
-    {
-        $hour = now()->hour;
-        if (($hour < 10 || $hour >= 23)) {
-            throw new GQLException('提现时间段：10:00-23:00');
-        }
-    }
-
-    // 风控手段: 限制允许发起限量抢提现的时间
-    public static function checkHighWithdraw($user, $amount)
-    {
-        //高额提现
-        if ($amount > 0.5) {
-
-            if ($user->withdraw_at && $user->withdraw_at > today()) {
-                throw new GQLException('一天只能提现1次哦~');
-            }
-
-            $hour   = now()->hour;
-            $minute = now()->minute;
-
-            //新注册3小时内的用户不能高额提现，防止撸毛
-            if (!now()->diffInHours($user->created_at) >= 3) {
-                throw new GQLException('当前限量抢额度已被抢光了,下个时段再试吧');
-            }
-
-            //老用户 工作时间才可以提现
-            if (($hour < 10 || $hour >= 18 || $minute >= 40)) {
-                throw new GQLException('限量抢时间段：10:00-18:00，请在每个小时开始的0-40分钟内开抢哦');
-            }
-
-            //每人默认最高10元限量抢额度，新版本开放提额玩法,先简单防止老刷子账户疯狂并发提现...
-            $withdrawLines = $user->withdraw_lines;
-            if ($withdrawLines < $amount) {
-                throw new GQLException('限量抢额度已被抢光了,下个时段再试吧');
-            }
-
-            /**
-             * 限流:
-             * 每时段前10分钟，比如10:00 - 10:10 限制流量,避免DB SERVER 负载压力100%
-             * 限制几率 95%
-             * 时间超出过,恢复正常!
-             */
-            if ($minute < 40) {
-                $rand = mt_rand(1, 100);
-                // sleep(1); //不能sleep!! 会占用 php-fpm 和 mysql connections...
-                throw_if($rand <= 30, GQLException::class, '目前人数过多,请您下个时段(' . ($hour + 1) . '点)再试!');
-            }
-
-        }
-    }
-
-    public static function checkWithdrawVersion($version)
-    {
-        if (!$version) {
-            $version = getAppVersion();
-        }
-        throw_if($version < '2.9.7', GQLException::class, '版本过低,请升级最新版本提现!');
-    }
-
-    //预防新用户快速请求, 预防一日重复提现
-    public static function checkLastWithdrawTime($wallet)
-    {
-        if (empty($wallet)) {
-            throw new GQLException('您的提现速度过快,请稍后再试!');
-        }
-
-        $lastWithdraw = $wallet->withdraws()->latest('id')->first();
-        if ($lastWithdraw && $lastWithdraw->created_at) {
-
-            //测试UT时无需卡5秒
-            if (!is_testing_env()) {
-                $validSecond    = 5 - now()->diffInSeconds($lastWithdraw->created_at);
-                $canNotWithdraw = now() > $lastWithdraw->created_at && $validSecond < 0;
-                if (!$canNotWithdraw) {
-                    throw new GQLException(sprintf('您的提现速度过快,请%s秒后再试!', $validSecond));
-                }
-            }
-            if ($lastWithdraw->created_at > today()) {
-                throw new GQLException("您今日已提交过提现请求");
-            }
-        }
-
-        return true;
     }
 
     public static function checkWalletInfo($wallet, $platform)
@@ -129,70 +68,196 @@ trait WithdrawFacade
         throw_if(empty($payId), GQLException::class, $errorMsg);
     }
 
-    //能否提现策略
-    public static function canWithdraw(User $user, $wallet, $amount, $platform)
-    {
-        //提现允许范围
-        throw_if(!in_array($amount, Withdraw::getAllowAmount()), GQLException::class, '您还没有选择金额哦~');
-
-        //小额提现
-        if ($amount < 1) {
-            throw_if($amount == 0.1 && $platform != Withdraw::ALIPAY_PLATFORM, GQLException::class, '0.1元只可提现至支付宝!');
-        }
-
-        //账户异常
-        throw_if($user->isShuaZi, GQLException::class, '账户异常,请联系官方QQ群:326423747');
-
-        //高额度政策（1元以上都算，目前日提0.5了）
-        if ($amount >= 1) {
-            //限制总额度100元
-            self::checkTodayWithdrawAmount($amount);
-            //当天注册,禁止提现3元以上
-            throw_if($user->created_at >= today(), GQLException::class, '今日提现已达上限!');
-        }
-
-        //贡献点检查
-        //提现成功0.3元以上的，不再无门槛
-        //        if ($user->successWithdrawAmount >= 0.3) {
-        //            $needContributes = User::getAmountNeedDayContributes($amount);
-        //            $leftContributes = $needContributes - $user->week_contribute;
-        //            //无法完成该额度提现，提示需要的贡献值
-        //            if ($leftContributes > 0) {
-        //                $remark = sprintf('还差%s周贡献', $leftContributes);
-        //                throw new GQLException($remark);
-        //            }
-        //        }
-    }
-
     public static function getAllowAmount()
     {
         return [0.1, 0.3, 0.5, 0.7, 1, 3, 5, 10];
     }
 
-    public static function checkTodayWithdrawAmount($amount)
+    /**
+     * 主要提现接口
+     */
+    public static function createWithdraw($user, $amount, $platform, $type)
     {
-        //总额（总提现金额，含队列内未成功的）
-        $todayWithdrawAmount = Withdraw::today()->sum('amount');
-        if ($todayWithdrawAmount >= Withdraw::MAX_WITHDRAW_SUM_AMOUNT) {
-            throw new GQLException('今日提现总名额已用完,请明日10点再来哦');
+        // 所有提现逻辑检测逻辑,已全部整合到CanWithdraw Trait中
+        Withdraw::canWithdraw($user, $amount, $platform, $type);
+        if (in_array($platform, Withdraw::OUR_SITE)) {
+            //提现去自己旗下其他平台
+            list($siteName, $siteDomain) = Withdraw::getPlatformInfo($platform);
+            //授权账户关联
+            OAuth::bindSite($user, $platform, $siteDomain, $siteName);
         }
 
-        //控制额度上限
-        $todayAmountGroup = Withdraw::selectRaw('amount,count(*) as count')->today()->groupBy('amount')->get();
-        foreach ($todayAmountGroup as $todayAmount) {
-            if ($amount == $todayAmount->amount) {
-                if ($todayAmount->amount == 3 && $todayAmount->count >= 30) {
-                    throw new GQLException('3元限量额度已抢完,请提现其他额度哦!');
-                }
-
-                if ($todayAmount->amount == 5 && $todayAmount->count >= 10) {
-                    throw new GQLException('5元限量额度已抢完,请提现其他额度哦!');
-                }
-
-                if ($todayAmount->amount == 10 && $todayAmount->count >= 5) {
-                    throw new GQLException('10元限量额度已抢完,请提现其他额度哦!');
-                }
-            }
+        $isFixedWithdraw  = $type == Withdraw::FIXED_TYPE;
+        $isRandomWithdraw = $type == Withdraw::RANDOM_TYPE;
+        // 提现提现,随机抽取金额
+        if ($isRandomWithdraw) {
+            $amount = Withdraw::randomAmount($user);
         }
+
+        // 动态获取:正常提现取RMB钱包,邀请活动取邀请活动钱包
+        $wallet   = $user->withdrawWallet($type);
+        $withdraw = $wallet->createWithdraw($amount, $platform, $type);
+        //这里更新 省了3次SQL操作
+        $user->withdrawAt();
+
+        //限量抢成功了，扣除限量抢额度
+        if ($amount > 0.5 && $isFixedWithdraw) {
+            $decrement = $amount > $user->withdraw_lines ? $user->withdraw_lines : $amount;
+            $user->decrement('withdraw_lines', $decrement);
+            //加入延时1小时提现队列
+            dispatch(new ProcessWithdraw($withdraw))->delay(now()->addMinutes(rand(50, 60))); //不再手快者得
+        } else {
+            //加入秒提现队列
+            dispatch(new ProcessWithdraw($withdraw));
+        }
+
+        return $withdraw;
     }
+
+    public static function getWithdraws($wallet, $offset = 0, $limit = 10)
+    {
+        return $wallet->withdraws()->skip($offset)
+            ->take($limit)
+            ->orderByDesc('id')
+            ->get();
+    }
+
+    public static function getPlatformInfo($platform)
+    {
+        $siteName   = '答妹';
+        $siteDomain = 'xiaodamei.com';
+
+        $isOurSite = false;
+        switch ($platform) {
+            case Withdraw::DDZ_PLATFORM:
+                $siteName   = '懂得赚';
+                $siteDomain = 'dongdezhuan.com';
+                $isOurSite  = true;
+                break;
+            case Withdraw::DM_PLATFORM:
+                $siteName   = '答妹';
+                $siteDomain = 'xiaodamei.com';
+                $isOurSite  = true;
+                break;
+        }
+
+        return array($siteName, $siteDomain, $isOurSite);
+    }
+
+    public static function withdrawCount($userId, $platform = '')
+    {
+        $withdraw    = new Withdraw;
+        $queryResult = $withdraw->select(DB::raw('count(1) as withdraw_count'))->whereExists(function ($query) use ($userId, $withdraw, $platform) {
+            $walleTable    = (new Wallet)->getTable();
+            $withdrawTable = $withdraw->getTable();
+            $query->select(DB::raw('1'))
+                ->from($walleTable)
+                ->where('user_id', $userId)
+                ->where('type', Wallet::RMB_TYPE)
+                ->where($withdrawTable . '.wallet_id', DB::raw($walleTable . '.id'));
+            // 指定平台查询的话
+            if (!empty($platform)) {
+                $query->where('to_platform', $platform);
+            }
+        })->first();
+
+        return $queryResult->withdraw_count;
+    }
+
+    public static function successWithdrawCount($userId)
+    {
+        $withdraw    = new Withdraw;
+        $queryResult = $withdraw->select(DB::raw('count(1) as withdraw_count'))->whereExists(function ($query) use ($userId, $withdraw) {
+            $walleTable    = (new Wallet)->getTable();
+            $withdrawTable = $withdraw->getTable();
+            $query->select(DB::raw('1'))
+                ->from($walleTable)
+                ->where('user_id', $userId)
+                ->where('type', Wallet::RMB_TYPE)
+                ->where($withdrawTable . '.wallet_id', DB::raw($walleTable . '.id'));
+        })->success()->first();
+
+        return $queryResult->withdraw_count;
+    }
+
+    public static function successWithdrawCountWithPlatform($userId, array $platforms)
+    {
+        $withdraw    = new Withdraw;
+        $queryResult = $withdraw->select(DB::raw('count(1) as withdraw_count'))->whereExists(function ($query) use ($userId, $withdraw) {
+            $walleTable    = (new Wallet)->getTable();
+            $withdrawTable = $withdraw->getTable();
+            $query->select(DB::raw('1'))
+                ->from($walleTable)
+                ->where('user_id', $userId)
+                ->where('type', Wallet::RMB_TYPE)
+                ->where($withdrawTable . '.wallet_id', DB::raw($walleTable . '.id'));
+        })->ofPlatform($platforms)->success()->first();
+
+        return $queryResult->withdraw_count;
+    }
+
+    public static function hasWithdraw($userId)
+    {
+        $withdrawCount = Withdraw::withdrawCount($userId);
+        return $withdrawCount > 0;
+    }
+
+    public static function randomAmount($user)
+    {
+        /**
+         * 0.01元：30%
+         * 0.2元：30%
+         * 0.3元：30%
+         * 0.4元：5%
+         * 0.5元：5%
+         */
+
+        $maxAmount = bcdiv($user->gold, Exchange::RATE);
+        $seed      = mt_rand(1, 100);
+        if ($seed >= 95 && $maxAmount >= 0.5) {
+            $randomAmount = 0.5;
+        } else if ($seed >= 90 && $maxAmount >= 0.4) {
+            $randomAmount = 0.4;
+        } else if ($seed >= 60 && $maxAmount >= 0.3) {
+            $randomAmount = 0.3;
+        } else if ($seed >= 30 && $maxAmount >= 0.2) {
+            $randomAmount = 0.2;
+        } else {
+            $randomAmount = 0.1;
+        }
+
+        return $randomAmount;
+    }
+
+    public static function makeWithdrawOption($amount, $disable = false, $optionConfig = [])
+    {
+        $needContributes = is_numeric($amount) ? User::getAmountNeedDayContributes($amount) : 0;
+        $option          = [
+            'disable'         => $disable,
+            'amount'          => $amount,
+            'needContributes' => Arr::get($optionConfig, 'needContributes', $needContributes),
+            'description'     => Arr::get($optionConfig, 'description', is_numeric($amount) ? Exchange::computeGold($amount) . '智慧点' : ''),
+            'tips'            => Arr::get($optionConfig, 'tips', '秒到账'),
+            'fontColor'       => Arr::get($optionConfig, 'fontColor', '#A0A0A0'),
+            'bgColor'         => Arr::get($optionConfig, 'bgColor', '#FFBB04'),
+            'rule'            => Arr::get($optionConfig, 'rule'),
+            'leftTime'        => Arr::get($optionConfig, 'leftTime', 0),
+            'platform'        => Arr::get($optionConfig, 'platform', 'all'),
+            'type'            => Arr::get($optionConfig, 'type', Withdraw::FIXED_TYPE),
+        ];
+        $option['label'] = Arr::get($optionConfig, 'label', $option['amount']);
+
+        return $option;
+    }
+
+    public static function isEffectiveAmount($amount, $type)
+    {
+        $amountArr = [0.1, 0.3, 0.5, 0.7, 1, 3, 5, 10];
+        if ($type == Withdraw::INVITE_ACTIVITY_TYPE) {
+            $amountArr = [1, 20];
+        }
+
+        return in_array($amount, $amountArr);
+    }
+
 }

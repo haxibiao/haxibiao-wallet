@@ -1,0 +1,10 @@
+<?php
+
+namespace App;
+
+use Haxibiao\Wallet\JDJR as BaseJDJR;
+
+class JDJR extends BaseJDJR
+{
+
+}
