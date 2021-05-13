@@ -60,7 +60,7 @@ trait WalletAttrs
 
     public function getDongdezhuanAttribute()
     {
-        $user          = checkUser();
+        $user          = currentUser();
         $dongdezhuanId = $user->oauth()->where('oauth_type', 'dongdezhuan')->first()->oauth_id;
 
     }

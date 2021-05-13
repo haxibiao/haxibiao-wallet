@@ -45,7 +45,7 @@ trait WithdrawResolvers
     public function getWithdrawAmountList($rootValue, array $args, GraphQLContext $context, ResolveInfo $resolveInfo)
     {
 
-        $user = checkUser();
+        $user = currentUser();
 
         $contribute       = Contribute::WITHDRAW_DATE;
         $isWithdrawBefore = $user ? $user->isWithdrawBefore() : false;
