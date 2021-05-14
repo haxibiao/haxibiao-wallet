@@ -2,12 +2,12 @@
 
 namespace Haxibiao\Wallet;
 
-use Illuminate\Support\Facades\Route;
-use Illuminate\Support\ServiceProvider;
+use Haxibiao\Wallet\Console\DealWaitingWithdraw;
 use Haxibiao\Wallet\Console\InstallCommand;
 use Haxibiao\Wallet\Console\PublishCommand;
-use Haxibiao\Wallet\Console\DealWaitingWithdraw;
 use Illuminate\Database\Eloquent\Relations\Relation;
+use Illuminate\Support\Facades\Route;
+use Illuminate\Support\ServiceProvider;
 
 class WalletServiceProvider extends ServiceProvider
 {
@@ -16,7 +16,12 @@ class WalletServiceProvider extends ServiceProvider
      *
      * @var array
      */
-    protected $listen = [];
+    protected $listen = [
+        'Haxibiao\Wallet\Events\WithdrawalDone' => [
+            'Haxibiao\Wallet\Listeners\InvitationReward',
+            'Haxibiao\Wallet\Listeners\SendWithdrawNotification',
+        ],
+    ];
 
     /**
      * Boorstrap the service provider.
