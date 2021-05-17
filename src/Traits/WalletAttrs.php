@@ -85,9 +85,13 @@ trait WalletAttrs
 
     public function getBindPlatformsAttribute()
     {
-        return [
-            'alipay' => PayUtils::isAlipayOpenId($this->pay_account) ? $this->pay_account : null,
-            'wechat' => empty($this->wechat_account) ? null : $this->wechat_account,
-        ];
+        $bindPlatfroms = [];
+        $platforms     = ['alipay', 'qq', 'wechat'];
+        $oauths        = $this->user->oauths()->ofType($platforms)->get();
+        foreach ($platforms as $platform) {
+            $bindPlatfroms[$platform] = data_get($oauths->firstWhere('oauth_type', $platform), 'oauth_id');
+        }
+
+        return $bindPlatfroms;
     }
 }

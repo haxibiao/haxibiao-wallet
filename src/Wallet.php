@@ -204,17 +204,7 @@ class Wallet extends Model
         ];
     }
 
-    public function getBindPlatformsAttribute()
-    {
-        $bindPlatfroms = [];
-        $platforms     = ['alipay', 'qq', 'wechat'];
-        $oauths        = $this->user->oauths()->ofType($platforms)->get();
-        foreach ($platforms as $platform) {
-            $bindPlatfroms[$platform] = data_get($oauths->firstWhere('oauth_type', $platform), 'oauth_id');
-        }
 
-        return $bindPlatfroms;
-    }
 
     public function todayIncome()
     {
