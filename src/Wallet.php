@@ -5,6 +5,7 @@ namespace Haxibiao\Wallet;
 use Haxibiao\Breeze\Exceptions\UserException;
 use Haxibiao\Breeze\Traits\ModelHelpers;
 use Haxibiao\Breeze\User;
+use Haxibiao\Question\Helpers\Redis\RedisHelper;
 use Haxibiao\Wallet\Traits\WalletAttrs;
 use Haxibiao\Wallet\Traits\WalletRepo;
 use Haxibiao\Wallet\Traits\WalletResolvers;
@@ -305,17 +306,17 @@ class Wallet extends Model
         }
 
         // 防止并发请求 && 限制每个用户只能提现1次
-        // $redis    = RedisHelper::redis();
-        // $cacheKey = sprintf('withdraw:date:%s:user:%s', date('Ymd'), $wallet->user_id);
-        // if (!is_null($redis)) {
-        //     if (!Withdraw::isWhiteListMemeber($user->id)) {
-        //         //今日提现过其他额度后，不限制京东金融的提现
-        //         if ($platform != Withdraw::JDJR_PLATFORM) {
-        //             throw_if($redis->incrby($cacheKey, 1) > 1, UserException::class, '提现失败,您今日提次数已达上限!');
-        //             $redis->expireat($cacheKey, now()->endOfDay()->timestamp);
-        //         }
-        //     }
-        // }
+        $redis    = RedisHelper::redis();
+        $cacheKey = sprintf('withdraw:date:%s:user:%s', date('Ymd'), $wallet->user_id);
+        if (!is_null($redis)) {
+            if (!Withdraw::isWhiteListMemeber($user->id)) {
+                //今日提现过其他额度后，不限制京东金融的提现
+                if ($platform != Withdraw::JDJR_PLATFORM) {
+                    throw_if($redis->incrby($cacheKey, 1) > 1, UserException::class, '提现失败,您今日提次数已达上限!');
+                    $redis->expireat($cacheKey, now()->endOfDay()->timestamp);
+                }
+            }
+        }
 
         // 创建提现记录
         $withdraw = Withdraw::createWithdrawWithWallet($wallet, $amount, $platform, $type);
