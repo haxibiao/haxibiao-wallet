@@ -3,14 +3,13 @@
 namespace Haxibiao\Wallet;
 
 use Haxibiao\Breeze\Exceptions\UserException;
+use Haxibiao\Breeze\Helpers\Redis\RedisHelper;
 use Haxibiao\Breeze\Traits\ModelHelpers;
 use Haxibiao\Breeze\User;
-use Haxibiao\Question\Helpers\Redis\RedisHelper;
 use Haxibiao\Wallet\Traits\WalletAttrs;
 use Haxibiao\Wallet\Traits\WalletRepo;
 use Haxibiao\Wallet\Traits\WalletResolvers;
 use Illuminate\Database\Eloquent\Model;
-use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 
 class Wallet extends Model
@@ -203,8 +202,6 @@ class Wallet extends Model
             'wechat' => empty($this->open_id) ? null : $this->open_id,
         ];
     }
-
-
 
     public function todayIncome()
     {
