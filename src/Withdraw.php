@@ -93,7 +93,7 @@ class Withdraw extends Model
 
     public function transaction()
     {
-        return $this->belongsTo(\App\Transaction::class);
+        return $this->belongsTo(Transaction::class);
     }
 
     public function getUserRealNameAttribute()

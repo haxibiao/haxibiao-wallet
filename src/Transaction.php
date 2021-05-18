@@ -23,7 +23,7 @@ class Transaction extends Model
 
     public function wallet()
     {
-        return $this->belongsTo(\App\Wallet::class);
+        return $this->belongsTo(Wallet::class);
     }
 
     public static function makeIncome($wallet, $amount, $remark = '智慧点兑换', $otherData = []): Transaction

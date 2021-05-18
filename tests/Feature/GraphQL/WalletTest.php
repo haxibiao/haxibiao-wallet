@@ -3,9 +3,9 @@
 namespace Haxibiao\Wallet\Tests\Feature\GraphQL;
 
 use App\User;
-use App\Wallet;
-use App\Withdraw;
 use Haxibiao\Breeze\GraphQLTestCase;
+use Haxibiao\Wallet\Wallet;
+use Haxibiao\Wallet\Withdraw;
 use Illuminate\Foundation\Testing\DatabaseTransactions;
 
 class WalletTest extends GraphQLTestCase
@@ -28,7 +28,7 @@ class WalletTest extends GraphQLTestCase
         ]);
         $this->withdraw = Withdraw::create([
             'wallet_id' => $this->wallet->id,
-            'amount' => 0,
+            'amount'    => 0,
         ]);
     }
 
@@ -37,13 +37,13 @@ class WalletTest extends GraphQLTestCase
      */
     protected function testGetRechargeSignature()
     {
-        $query  = file_get_contents(__DIR__ . '/Recharge/getRechargeSignatureMutation.graphql');
-        
+        $query = file_get_contents(__DIR__ . '/Recharge/getRechargeSignatureMutation.graphql');
+
         $variables = [
-            "amount"  => 0.01,
-            "platform" => "ALIPAY"
+            "amount"   => 0.01,
+            "platform" => "ALIPAY",
         ];
-        $this->startGraphQL($query, $variables,$this->getHeaders($this->user));
+        $this->startGraphQL($query, $variables, $this->getHeaders($this->user));
     }
 
     /**
@@ -51,12 +51,12 @@ class WalletTest extends GraphQLTestCase
      */
     public function testRechargesQuery()
     {
-        $query  = file_get_contents(__DIR__ . '/Recharge/rechargesQuery.graphql');
-        
+        $query = file_get_contents(__DIR__ . '/Recharge/rechargesQuery.graphql');
+
         $variables = [
-            "user_id"  => $this->user->id
+            "user_id" => $this->user->id,
         ];
-        $this->startGraphQL($query, $variables,$this->getHeaders($this->user));
+        $this->startGraphQL($query, $variables, $this->getHeaders($this->user));
     }
 
     /**
@@ -64,12 +64,12 @@ class WalletTest extends GraphQLTestCase
      */
     public function testRechargeQuery()
     {
-        $query  = file_get_contents(__DIR__ . '/Recharge/rechargeQuery.graphql');
-        
+        $query = file_get_contents(__DIR__ . '/Recharge/rechargeQuery.graphql');
+
         $variables = [
-            "trade_no"  => "test"
+            "trade_no" => "test",
         ];
-        $this->startGraphQL($query, $variables,$this->getHeaders($this->user));
+        $this->startGraphQL($query, $variables, $this->getHeaders($this->user));
     }
 
     /**
@@ -77,15 +77,15 @@ class WalletTest extends GraphQLTestCase
      */
     public function testSetWalletPaymentInfoMutation()
     {
-        $query  = file_get_contents(__DIR__ . '/Wallet/setWalletPaymentInfoMutation.graphql');
-        
+        $query = file_get_contents(__DIR__ . '/Wallet/setWalletPaymentInfoMutation.graphql');
+
         $variables = [
-            "input"  => [
-                'pay_account'=>"16675896695",
-                'real_name'=> "中波",
-            ]
+            "input" => [
+                'pay_account' => "16675896695",
+                'real_name'   => "中波",
+            ],
         ];
-        $this->startGraphQL($query, $variables,$this->getHeaders($this->user));
+        $this->startGraphQL($query, $variables, $this->getHeaders($this->user));
     }
 
     /**
@@ -93,12 +93,12 @@ class WalletTest extends GraphQLTestCase
      */
     public function testWithdrawQuery()
     {
-        $query  = file_get_contents(__DIR__ . '/Withdraw/withdrawQuery.graphql');
-        
+        $query = file_get_contents(__DIR__ . '/Withdraw/withdrawQuery.graphql');
+
         $variables = [
-            "id"  => $this->withdraw->id,
+            "id" => $this->withdraw->id,
         ];
-        $this->startGraphQL($query, $variables,$this->getHeaders($this->user));
+        $this->startGraphQL($query, $variables, $this->getHeaders($this->user));
     }
 
     /**
@@ -106,12 +106,12 @@ class WalletTest extends GraphQLTestCase
      */
     public function testWithdrawsQuery()
     {
-        $query  = file_get_contents(__DIR__ . '/Withdraw/withdrawsQuery.graphql');
-        
+        $query = file_get_contents(__DIR__ . '/Withdraw/withdrawsQuery.graphql');
+
         $variables = [
-            "wallet_id"  => $this->wallet->id,
+            "wallet_id" => $this->wallet->id,
         ];
-        $this->startGraphQL($query, $variables,$this->getHeaders($this->user));
+        $this->startGraphQL($query, $variables, $this->getHeaders($this->user));
     }
 
     /**
@@ -119,9 +119,9 @@ class WalletTest extends GraphQLTestCase
      */
     public function testGetWithdrawAmountList()
     {
-        $query  = file_get_contents(__DIR__ . '/Withdraw/getWithdrawAmountListQuery.graphql');
-        
+        $query = file_get_contents(__DIR__ . '/Withdraw/getWithdrawAmountListQuery.graphql');
+
         $variables = [];
-        $this->startGraphQL($query, $variables,$this->getHeaders($this->user));
+        $this->startGraphQL($query, $variables, $this->getHeaders($this->user));
     }
 }

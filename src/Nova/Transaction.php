@@ -59,8 +59,8 @@ class Transaction extends Resource
     public function filters(Request $request)
     {
         return [
-            new \App\Nova\Filters\Transaction\TransactionStatusType,
-            new \App\Nova\Filters\Transaction\TransactionType,
+            // new \App\Nova\Filters\Transaction\TransactionStatusType,
+            // new \App\Nova\Filters\Transaction\TransactionType,
         ];
     }
 

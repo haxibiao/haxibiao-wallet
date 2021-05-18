@@ -2,10 +2,10 @@
 
 namespace Haxibiao\Wallet\Traits;
 
-use App\Transaction;
-use Yansongda\Pay\Log;
 use Haxibiao\Wallet\Recharge;
+use Haxibiao\Wallet\Transaction;
 use Illuminate\Support\Facades\DB;
+use Yansongda\Pay\Log;
 
 trait RechargeRepo
 {
@@ -77,7 +77,7 @@ trait RechargeRepo
                 'name'   => '188学币',
                 'amount' => 188,
             ],
-            '123321' => [
+            '123321'               => [
                 'name'   => '120体力值',
                 'amount' => 120,
             ],
@@ -85,7 +85,7 @@ trait RechargeRepo
                 'name'   => '全体力恢复',
                 'amount' => -1,
             ],
-             'com.tiantianchuti_03' => [
+            'com.tiantianchuti_03' => [
                 'name'   => '全体力恢复',
                 'amount' => -1,
             ],

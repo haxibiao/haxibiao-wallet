@@ -1,8 +1,8 @@
 <?php
 namespace Haxibiao\Wallet\Console;
 
-use App\Notice;
-use App\Withdraw;
+use Haxibiao\Sns\Notice;
+use Haxibiao\Wallet\Withdraw;
 use Illuminate\Console\Command;
 
 class DealWaitingWithdraw extends Command

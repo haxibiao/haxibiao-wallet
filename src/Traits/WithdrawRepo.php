@@ -5,6 +5,7 @@ namespace Haxibiao\Wallet\Traits;
 use App\User;
 use Carbon\Carbon;
 use Haxibiao\Breeze\ErrorLog;
+use Haxibiao\Breeze\WhiteUser;
 use Haxibiao\Helpers\utils\PayUtils;
 use Haxibiao\Wallet\Exchange;
 use Haxibiao\Wallet\Gold;
@@ -387,7 +388,7 @@ trait WithdrawRepo
     public static function getUserIdWhiteList(): ?array
     {
         // 从白名单中获取账号
-        $accounts = \App\WhiteUser::query()->select('account')->get()->pluck('account')->toArray();
+        $accounts = WhiteUser::query()->select('account')->get()->pluck('account')->toArray();
         $userIDs  = User::whereIn('account', $accounts)->select('id')->get()->pluck('id')->toArray();
         return $userIDs;
     }

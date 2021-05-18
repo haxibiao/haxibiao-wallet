@@ -1,9 +1,9 @@
 <?php
 namespace Haxibiao\Wallet\Traits;
 
-use App\Exceptions\GQLException;
 use GuzzleHttp\Client;
 use GuzzleHttp\Exception\GuzzleException;
+use Haxibiao\Breeze\Exceptions\GQLException;
 use Haxibiao\Wallet\Recharge;
 use Yansongda\Pay\Log;
 use Yansongda\Pay\Pay;
