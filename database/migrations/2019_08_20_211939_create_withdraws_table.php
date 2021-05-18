@@ -19,6 +19,7 @@ class CreateWithdrawsTable extends Migration
         Schema::create('withdraws', function (Blueprint $table) {
             $table->bigIncrements('id');
             $table->unsignedInteger('wallet_id')->index()->comment('钱包ID');
+            $table->unsignedInteger('user_id')->index()->comment('用户ID');
             $table->tinyInteger('status')->default('0')->comment('待处理(0) 提现成功(1) 提现失败(-1)');
             $table->unsignedInteger('transaction_id')->nullable()->comment('交易ID');
             $table->decimal('amount', 10, 2)->comment('金额');
