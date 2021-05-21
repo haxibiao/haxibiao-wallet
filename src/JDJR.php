@@ -1,6 +1,7 @@
 <?php
 namespace Haxibiao\Wallet;
 
+use Haxibiao\Wallet\Helpers\JDJRHelper;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Str;
 
