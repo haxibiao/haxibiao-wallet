@@ -344,7 +344,7 @@ class Wallet extends Model
     }
 
     //repo
-    public static function rmbWalletOf(User $user): Wallet
+    public static function rmbWalletOf($user): Wallet
     {
         $wallet = self::firstOrCreate([
             'user_id' => $user->id,
