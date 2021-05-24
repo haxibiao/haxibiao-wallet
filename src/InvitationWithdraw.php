@@ -3,6 +3,7 @@
 namespace Haxibiao\Wallet;
 
 use App\User;
+use App\UserStageInvitation;
 
 class InvitationWithdraw extends Withdraw
 {
