@@ -1,7 +1,6 @@
 <?php
 namespace Haxibiao\Wallet;
 
-use App\User;
 use Haxibiao\Breeze\Exceptions\ErrorCode;
 use Haxibiao\Breeze\Exceptions\UserException;
 use Haxibiao\Wallet\JDJR;
@@ -17,7 +16,7 @@ class JDJRWithdraw extends Withdraw
         return $this;
     }
 
-    public static function canWithdraw(User $user, $amount, $platform, $type)
+    public static function canWithdraw($user, $amount, $platform, $type)
     {
         //取出默认唯一的钱包(确保不空) && 检查钱包绑定
         $wallet = $user->wallet;
