@@ -57,14 +57,6 @@ class WalletServiceProvider extends ServiceProvider
         $this->registerCommands();
     }
 
-    protected function apiRoutesConfiguration()
-    {
-        return [
-            // 'namespace' => 'Haxibiao\Live\Http\Controllers\Api',
-            // 'prefix'    => 'api',
-        ];
-    }
-
     protected function registerCommands()
     {
         $this->commands([
@@ -81,9 +73,10 @@ class WalletServiceProvider extends ServiceProvider
      */
     protected function registerRoutes()
     {
-        Route::group($this->apiRoutesConfiguration(), function () {
-            $this->loadRoutesFrom(__DIR__ . '/../routes/api.php');
-        });
+        //加载路由
+        $this->loadRoutesFrom(
+            $this->app->make('path.haxibiao-wallet') . '/router.php'
+        );
     }
 
     /**

@@ -22,7 +22,13 @@ return [
         'mode'                => 'normal',
     ],
     'wechat' => [
-        'appid'       => env('WECHAT_APPID'),
+        // 公众号 APPID - 三种APPID提供一种就可以
+        'app_id'      => env('WECHAT_APPID', ''),
+        // 小程序 APPID
+        'miniapp_id'  => env('WECHAT_APPID', ''),
+        // APP 引用的 appid
+        'appid'       => env('WECHAT_APPID', ''),
+
         'key'         => env('WECHAT_PAY_KEY'),
         'mch_id'      => env('WECHAT_PAY_MCH_ID'),
         'cert_client' => '/etc/wechat/apiclient_cert.pem',

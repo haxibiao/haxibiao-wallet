@@ -1,6 +1,6 @@
 <?php
 
-namespace Haxibiao\Wallet\Controllers\Api;
+namespace Haxibiao\Wallet\Http\Controllers;
 
 use App\Http\Controllers\Controller;
 use Haxibiao\Wallet\Recharge;
@@ -10,6 +10,44 @@ use Yansongda\Pay\Pay;
 
 class PayController extends Controller
 {
+    public function alipay()
+    {
+        $order = [
+            'out_trade_no' => time(),
+            'total_fee'    => '100', // **单位：分**
+            'body'         => 'test body - 测试',
+            // 'openid'       => 'ocgJe6udpv1EBi6k7fOLf7jP5K48',
+        ];
+
+        $config = config('pay.alipay');
+        $pay    = Pay::wechat($config)->wap($order);
+        return $pay;
+
+        // $pay->appId
+        // $pay->timeStamp
+        // $pay->nonceStr
+        // $pay->package
+        // $pay->signType
+    }
+
+    public function wechat()
+    {
+        $order = [
+            'out_trade_no' => time(),
+            'total_fee'    => '100', // **单位：分**
+            'body'         => 'test body - 测试',
+            // 'openid'       => 'ocgJe6udpv1EBi6k7fOLf7jP5K48',
+        ];
+
+        $config = config('pay.wechat');
+        // PC 场景扫码支付
+        // $pay    = Pay::wechat($config)->scan($order);
+        $pay = Pay::wechat($config)->wap($order);
+
+        // dd($pay);
+        return $pay;
+    }
+
     /**
      * 没用到此回调，但签名生成需要此接口
      */
