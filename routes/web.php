@@ -2,6 +2,8 @@
 
 use Illuminate\Support\Facades\Route;
 
+Route::any('/pay', 'PayController@index');
+
 Route::any('/pay/alipay', 'PayController@alipay');
 Route::any('/pay/alipay/return', 'PayController@alipayReturn');
 Route::any('/pay/alipay/notify', 'PayController@alipayNotify');

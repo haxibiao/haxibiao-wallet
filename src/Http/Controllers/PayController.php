@@ -10,6 +10,18 @@ use Yansongda\Pay\Pay;
 
 class PayController extends Controller
 {
+    public function index()
+    {
+        if (request('test') == 'wechat') {
+            return redirect()->to("/pay/wechat");
+        }
+        if (request('test') == 'alipay') {
+            return redirect()->to("/pay/alipay");
+        }
+
+        dd("支付系统调试入口，详细请阅读breeze文档");
+    }
+
     public function alipay()
     {
         $order = [
