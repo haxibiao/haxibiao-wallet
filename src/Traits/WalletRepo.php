@@ -190,7 +190,7 @@ trait WalletRepo
 
     public function removePlatform($platform)
     {
-        $this->setPayId(null, $platform);
+        $this->setPayId("", $platform);
         $this->save();
 
         return $this;
