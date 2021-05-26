@@ -30,6 +30,8 @@ class WalletServiceProvider extends ServiceProvider
      */
     public function boot()
     {
+        $this->bindObservers();
+
         Relation::morphMap([
             'recharges' => '\Haxibiao\Wallet\Recharge',
         ]);
@@ -55,6 +57,19 @@ class WalletServiceProvider extends ServiceProvider
 
         // Register Commands
         $this->registerCommands();
+    }
+
+    protected function apiRoutesConfiguration()
+    {
+        return [
+            // 'namespace' => 'Haxibiao\Live\Http\Controllers\Api',
+            // 'prefix'    => 'api',
+        ];
+    }
+
+    public function bindObservers()
+    {
+        \Haxibiao\Wallet\Withdraw::observe(\Haxibiao\Wallet\Observers\WithdrawObserver::class);
     }
 
     protected function registerCommands()
