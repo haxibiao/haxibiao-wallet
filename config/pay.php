@@ -33,7 +33,7 @@ return [
         'mch_id'      => env('WECHAT_PAY_MCH_ID'),
         'cert_client' => '/etc/wechat/apiclient_cert.pem',
         'cert_key'    => '/etc/wechat/apiclient_key.pem',
-        'notify_url'  => env('APP_URL') . '/api/pay/wechat-notify',
+        'notify_url'  => env('APP_URL') . '/pay/wechat/notify',
         'log'         => [
             'file'     => storage_path('logs/pay/wechat.log'),
             'level'    => 'debug',

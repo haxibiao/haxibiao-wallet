@@ -13,8 +13,13 @@ class PayController extends Controller
     public function test()
     {
         if (request('type') == 'wechat') {
-            // return redirect()->to("/pay/wechat");
-            return view('go_wechat');
+            $trade_no = request('trade_no') ?? time();
+            $amount   = request('amount') ?? 1;
+            $subject  = request('subject') ?? "测试一笔";
+            return view('pay.wechat_go')
+                ->with('trade_no', $trade_no)
+                ->with('amount', $amount)
+                ->with('subject', $subject);
         }
         if (request('type') == 'alipay') {
             return redirect()->to("/pay/alipay");
@@ -25,11 +30,14 @@ class PayController extends Controller
 
     public function alipay()
     {
+        $trade_no = request('trade_no') ?? time();
+        $amount   = request('amount') ?? 1;
+        $subject  = request('subject') ?? "测试一笔";
+
         $order = [
-            'out_trade_no' => time(),
-            'total_fee'    => '100', // **单位：分**
-            'body'         => 'test body - 测试',
-            // 'openid'       => 'ocgJe6udpv1EBi6k7fOLf7jP5K48',
+            'out_trade_no' => $trade_no,
+            'total_fee'    => $amount * 100, // **单位：分**
+            'body'         => $subject,
         ];
 
         $config = config('pay.alipay');
@@ -45,24 +53,32 @@ class PayController extends Controller
 
     public function wechat()
     {
+        $trade_no = request('trade_no') ?? time();
+        $amount   = request('amount') ?? 1;
+        $subject  = request('subject') ?? "测试一笔";
+
         $order = [
-            'out_trade_no' => time(),
-            'total_fee'    => '100', // **单位：分**
-            'body'         => 'test body - 测试',
-            // 'openid'       => 'ocgJe6udpv1EBi6k7fOLf7jP5K48',
+            'out_trade_no' => $trade_no,
+            'total_fee'    => $amount * 100, // **单位：分**
+            'body'         => $subject,
         ];
 
         $config = config('pay.wechat');
         // PC 场景扫码支付
-        // $pay    = Pay::wechat($config)->scan($order);
-        $pay = Pay::wechat($config)->wap($order);
-
-        // dd($pay);
+        if (isDesktop()) {
+            $pay      = Pay::wechat($config)->scan($order);
+            $code_url = $pay->code_url;
+            return view('pay.wechat_scan')
+                ->with('code_url', $code_url)
+                ->with('order', $order);
+        } else {
+            $pay = Pay::wechat($config)->wap($order);
+        }
         return $pay;
     }
 
     /**
-     * 没用到此回调，但签名生成需要此接口
+     * 支付宝返回地址
      */
     public function alipayReturn(Request $request)
     {
@@ -71,12 +87,22 @@ class PayController extends Controller
     }
 
     /**
+     * 微信扫码支付验证地址
+     */
+    public function wechatReturn(Request $request)
+    {
+        Log::info("=============wechat return============");
+        Log::info('wechat return', json_encode($request->all()));
+    }
+
+    /**
      * 支付宝交易结束回调处
      */
     public function alipayNotify()
     {
-        $alipay    = Pay::alipay(config('pay.alipay'));
-        $data      = $alipay->verify();
+        $alipay = Pay::alipay(config('pay.alipay'));
+        $data   = $alipay->verify();
+
         $payStatus = data_get($data, 'trade_status');
         // 是否交易成功
         if ($payStatus == 'TRADE_SUCCESS') {
@@ -85,7 +111,7 @@ class PayController extends Controller
             // 充值
             Recharge::completeRecharge($trade_no, 'alipay', $amount, $data);
         } else {
-            Log::error('Alipay notify', $data->all());
+            Log::error(' === alipay notify', $data->all());
         }
         return $alipay->success();
     }
@@ -97,6 +123,9 @@ class PayController extends Controller
     {
         $wechat = Pay::wechat(config('pay.wechat'));
         $data   = $wechat->verify();
+
+        \info(' === wechat notify data');
+        \info($data);
         if (data_get($data, 'result_code') == 'SUCCESS') {
             $trade_no = data_get($data, 'out_trade_no');
             // 微信金额单位为分
@@ -104,7 +133,7 @@ class PayController extends Controller
             // 充值
             Recharge::completeRecharge($trade_no, 'wechat', $amount, $data);
         } else {
-            Log::error('Wechat notify', $data->all());
+            Log::error(' === wechat notify error: ', $data->all());
         }
         return $wechat->success();
     }
