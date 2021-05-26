@@ -32,6 +32,7 @@ trait RechargeRepo
         // 不知名充值订单
         if (empty($recharge)) {
             Log::info("{$platform} 未知充值订单", func_get_args());
+            return;
         }
         // 有效充值订单
         if ($recharge->status == Recharge::WATING_PAY) {

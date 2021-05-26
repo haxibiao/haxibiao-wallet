@@ -12,11 +12,14 @@ class PayController extends Controller
 {
     public function test()
     {
+        $trade_no   = request('trade_no') ?? time();
+        $amount     = request('amount') ?? 1;
+        $subject    = request('subject') ?? "测试一笔";
+        $return_url = request()->url();
+
         if (request('type') == 'wechat') {
-            $trade_no = request('trade_no') ?? time();
-            $amount   = request('amount') ?? 1;
-            $subject  = request('subject') ?? "测试一笔";
             return view('pay.wechat_go')
+                ->with('return_url', $return_url)
                 ->with('trade_no', $trade_no)
                 ->with('amount', $amount)
                 ->with('subject', $subject);
@@ -25,7 +28,9 @@ class PayController extends Controller
             return redirect()->to("/pay/alipay");
         }
 
-        dd("支付系统调试入口，详细请阅读breeze文档");
+        return view('pay.test')
+            ->with('trade_state', request('trade_state'))
+            ->with('trade_no', request('trade_no'));
     }
 
     public function alipay()
@@ -57,6 +62,20 @@ class PayController extends Controller
         $amount   = request('amount') ?? 1;
         $subject  = request('subject') ?? "测试一笔";
 
+        $trade_state = session('trade_state');
+        //已查询支付成功的回调返回，返回到原支付场景URL
+        if ($trade_state == 'SUCCESS') {
+            // 返回已支付成功状态
+            $referer = request('return_url') ?? request()->headers->get('referer');
+            $with    = http_build_query(['trade_state' => 'SUCCESS', 'trade_no' => $trade_no]);
+            if (parse_url($referer, PHP_URL_QUERY)) {
+                $referer .= "&" . $with;
+            } else {
+                $referer .= "?" . $with;
+            }
+            return redirect()->to($referer);
+        }
+
         $order = [
             'out_trade_no' => $trade_no,
             'total_fee'    => $amount * 100, // **单位：分**
@@ -69,6 +88,7 @@ class PayController extends Controller
             $pay      = Pay::wechat($config)->scan($order);
             $code_url = $pay->code_url;
             return view('pay.wechat_scan')
+                ->with('trade_state', $trade_state)
                 ->with('code_url', $code_url)
                 ->with('order', $order);
         } else {
@@ -91,8 +111,33 @@ class PayController extends Controller
      */
     public function wechatReturn(Request $request)
     {
-        Log::info("=============wechat return============");
-        Log::info('wechat return', json_encode($request->all()));
+        if ($trade_no = request('trade_no')) {
+            $order = [
+                'out_trade_no' => $trade_no,
+            ];
+            $wechat = Pay::wechat(config('pay.wechat'));
+            $data   = $wechat->find($order);
+            // 支付成功
+            if ($data) {
+                if ($data->trade_state == 'SUCCESS') {
+                    $trade_no = data_get($data, 'out_trade_no');
+                    // 微信金额单位为分
+                    $amount = data_get($data, 'total_fee') / 100;
+                    // 充值
+                    Recharge::completeRecharge($trade_no, 'wechat', $amount, $data);
+                }
+                if (!request()->ajax()) {
+                    // 跳转返回已支付成功状态
+                    $with    = ['trade_state' => $data->trade_state];
+                    $referer = request('return_url') ?? request()->headers->get('referer');
+                    return redirect()->to($referer)->with($with);
+                }
+            }
+            return $data;
+
+        } else {
+            dd('缺少参数 trade_no');
+        }
     }
 
     /**
