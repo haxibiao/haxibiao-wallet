@@ -43,6 +43,7 @@ trait GoldRepo
         $balance  = $user->gold - $gold;
         $goldItem = Gold::create([
             'user_id' => $user->id,
+            'wallet_id' => $user->goldWallet->id,
             'gold'    => -$gold,
             'balance' => $balance,
             'remark'  => $remark,
@@ -60,6 +61,7 @@ trait GoldRepo
         $balance  = $user->gold + $gold;
         $goldItem = Gold::create([
             'user_id' => $user->id,
+            'wallet_id' => $user->goldWallet->id,
             'gold'    => $gold,
             'balance' => $balance,
             'remark'  => $remark,
