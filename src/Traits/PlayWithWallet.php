@@ -8,12 +8,20 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
 
 trait PlayWithWallet
 {
+    /**
+     * 充值记录
+     */
     public function recharges(): HasMany
     {
         return $this->hasMany(Recharge::class);
     }
-    function oauths(): HasMany
+
+    /**
+     * 登录授权
+     */
+    public function oauths(): HasMany
     {
         return $this->hasMany(OAuth::class);
     }
+
 }

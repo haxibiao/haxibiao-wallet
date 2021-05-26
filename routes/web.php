@@ -2,7 +2,11 @@
 
 use Illuminate\Support\Facades\Route;
 
-Route::any('/pay', 'PayController@index');
+//支付调试 ?type=
+Route::any('/pay/test', 'PayController@test');
+
+//打赏支付 ?amount=&type=tip
+Route::get('/pay', 'PayController@tip');
 
 Route::any('/pay/alipay', 'PayController@alipay');
 Route::any('/pay/alipay/return', 'PayController@alipayReturn');

@@ -86,7 +86,12 @@ class WalletServiceProvider extends ServiceProvider
      */
     public function register()
     {
-        // Bind all of the package paths in the container.
+        //帮助函数
+        $src_path = __DIR__;
+        foreach (glob($src_path . '/Helpers/*.php') as $filename) {
+            require_once $filename;
+        }
+
         $this->bindPathsInContainer();
 
         // Merge config.
@@ -98,6 +103,17 @@ class WalletServiceProvider extends ServiceProvider
                 $this->app->make('path.haxibiao-wallet.config') . '/pay.php', 'pay'
             );
         }
+
+        //合并view paths
+        if (!app()->configurationIsCached()) {
+            $view_paths = array_merge(
+                //APP 的 views 最先匹配
+                config('view.paths'),
+                [wallet_path('resources/views')]
+            );
+            config(['view.paths' => $view_paths]);
+        }
+
     }
 
     /**

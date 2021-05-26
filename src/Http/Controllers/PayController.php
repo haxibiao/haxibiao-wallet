@@ -10,12 +10,13 @@ use Yansongda\Pay\Pay;
 
 class PayController extends Controller
 {
-    public function index()
+    public function test()
     {
-        if (request('test') == 'wechat') {
-            return redirect()->to("/pay/wechat");
+        if (request('type') == 'wechat') {
+            // return redirect()->to("/pay/wechat");
+            return view('go_wechat');
         }
-        if (request('test') == 'alipay') {
+        if (request('type') == 'alipay') {
             return redirect()->to("/pay/alipay");
         }
 
@@ -108,4 +109,39 @@ class PayController extends Controller
         return $wechat->success();
     }
 
+    /**
+     * 网页打赏
+     */
+    public function tip()
+    {
+        $amount  = request('amount');
+        $message = urldecode(request('message'));
+        $type    = request('type');
+        $user    = request()->user();
+        if ($user && $user->balance > $amount) {
+            //打赏文章
+            if (request('article_id')) {
+                $user       = getUser();
+                $article    = \App\Article::findOrFail(request('article_id'));
+                $tip        = $article->tip($amount, $message);
+                $log_mine   = '向' . $article->user->link() . '的' . $article->link() . '打赏' . $amount . '元';
+                $log_theirs = $user->link() . '向您的' . $article->link() . '打赏' . $amount . '元';
+                $user->transfer($amount, $article->user, $log_mine, $log_theirs, $tip->id);
+
+            }
+            //网页钱包
+            return redirect()->to('/wallet');
+        } else {
+            //未登录或者不够钱，直接支付宝
+            $realPayUrl = '/alipay/wap/pay?amount=' . $amount . '&type=' . $type;
+            if (request('article_id')) {
+                $realPayUrl .= '&article_id=' . request('article_id');
+            }
+            //赞赏留言传过去
+            if (request('message')) {
+                session(['last_tip_message' => request('message')]);
+            }
+            return redirect()->to($realPayUrl);
+        }
+    }
 }
