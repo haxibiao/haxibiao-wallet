@@ -3,7 +3,7 @@ extend type Mutation @guard {
         amount: Float!
         platform: Platform = ALIPAY @spread
         useWithdrawBadges: Boolean = false
-    ): Withdraw @field(resolver: "App\\Withdraw@createWithdraw")
+    ): Withdraw @field(resolver: "App\\Withdraw@resolveCreateNewWithdraw")
 }
 
 enum Platform {
