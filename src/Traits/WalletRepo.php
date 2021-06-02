@@ -179,6 +179,8 @@ trait WalletRepo
             if ($platform == Withdraw::JDJR_PLATFORM) {
                 $user  = $this->user;
                 $value = $user->account;
+            } else if ($platform == Withdraw::ALIPAY_PLATFORM) {
+                $value = $this->pay_account ?? null;
             } else {
                 $oauth = OAuth::select('oauth_id')->where('user_id', $this->user_id)->OfType($platform)->first();
                 $value = data_get($oauth, 'oauth_id');
