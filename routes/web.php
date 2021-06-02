@@ -13,4 +13,5 @@ Route::any('/pay/alipay/return', 'PayController@alipayReturn');
 Route::any('/pay/alipay/notify', 'PayController@alipayNotify');
 
 Route::any('/pay/wechat', 'PayController@wechat');
+Route::any('/pay/wechat/return', 'PayController@wechatReturn');
 Route::any('/pay/wechat/notify', 'PayController@wechatNotify');
