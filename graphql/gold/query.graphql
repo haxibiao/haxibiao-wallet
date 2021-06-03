@@ -8,6 +8,6 @@ type Gold {
 }
 
 extend type Query @guard {
-    golds(user_id: Int! @eq, orderBy: [OrderByClause!] @orderBy): [Gold]!
+    golds(user_id: Int! @eq, orderBy: [OrderByClause!]): [Gold]!
         @paginate(defaultCount: 10, builder: "App\\Gold@resolveGolds")
 }
