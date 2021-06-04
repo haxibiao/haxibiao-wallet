@@ -25,12 +25,12 @@ trait WalletResolvers
             throw new GQLException('姓名输入不合法,请重新输入~');
         }
 
-        if (is_phone_number($args['pay_account']) == 0) {
+        if ($args['pay_account'] ?? null && is_phone_number($args['pay_account']) == 0) {
             throw new GQLException('目前只支持手机号绑定的支付宝账号哦,请重新输入 ~');
         }
 
         $wallet              = Wallet::rmbWalletOf($user);
-        $wallet->pay_account = $args['pay_account'];
+        $wallet->pay_account = $args['pay_account'] ?? null;
         $wallet->real_name   = $args['real_name'];
 
         //更新一下提现变更记录
