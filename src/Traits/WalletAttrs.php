@@ -2,7 +2,6 @@
 
 namespace Haxibiao\Wallet\Traits;
 
-use Haxibiao\Helpers\utils\PayUtils;
 use Haxibiao\Wallet\Withdraw;
 
 trait WalletAttrs
@@ -85,6 +84,9 @@ trait WalletAttrs
 
     public function getBindPlatformsAttribute()
     {
+        if (config('app.name') == "datizhuanqian") {
+            return $this->platforms;
+        }
         $bindPlatfroms = [];
         $platforms     = ['alipay', 'qq', 'wechat'];
         $oauths        = $this->user->oauths()->ofType($platforms)->get();

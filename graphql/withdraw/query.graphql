@@ -1,5 +1,5 @@
 type Withdraw {
-    id: ID
+    id: Int
     status: Int
     amount: Float!
     remark: String

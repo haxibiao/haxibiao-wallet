@@ -20,7 +20,7 @@ use Illuminate\Support\Str;
 trait WalletRepo
 {
 
-    public static function exchangeBalance(User $user, $amount)
+    public static function exchangeBalance($user, $amount)
     {
         // 攻击提现接口时，延迟提现有可能堵塞php-fpm 并发能力，也降低用户秒提现体验了
         // sleep(1);
@@ -127,7 +127,7 @@ trait WalletRepo
         $wallet->changeRMB($exchange->rmb, '兑换收入');
     }
 
-    public static function rmbWalletOf(User $user): Wallet
+    public static function rmbWalletOf($user): Wallet
     {
         $wallet = self::firstOrCreate([
             'user_id' => $user->id,
@@ -136,7 +136,7 @@ trait WalletRepo
         return $wallet;
     }
 
-    public static function goldWalletOf(User $user): Wallet
+    public static function goldWalletOf($user): Wallet
     {
         $wallet = self::firstOrCreate([
             'user_id' => $user->id,
@@ -179,6 +179,8 @@ trait WalletRepo
             if ($platform == Withdraw::JDJR_PLATFORM) {
                 $user  = $this->user;
                 $value = $user->account;
+            } else if ($platform == Withdraw::ALIPAY_PLATFORM) {
+                $value = $this->pay_account ?? null;
             } else {
                 $oauth = OAuth::select('oauth_id')->where('user_id', $this->user_id)->OfType($platform)->first();
                 $value = data_get($oauth, 'oauth_id');

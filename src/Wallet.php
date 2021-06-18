@@ -220,15 +220,6 @@ class Wallet extends Model
         return $wallet;
     }
 
-    public static function goldWalletOf(User $user): Wallet
-    {
-        $wallet = self::firstOrCreate([
-            'user_id' => $user->id,
-            'type'    => 1,
-        ]);
-        return $wallet;
-    }
-
     public function isCanWithdraw($amount)
     {
         return $this->availableBalance >= $amount;
