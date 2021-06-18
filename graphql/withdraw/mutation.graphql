@@ -3,14 +3,14 @@ extend type Mutation {
     发起提现（限制1分钟5次）
     """
     createWithdraw(amount: Float!, platform: WithdrawPlatformEnum!, type: WithdrawType): Int!
-        @middleware(checks: ["graphql:300,1,withdraw"])
+        # @middleware(checks: ["graphql:300,1,withdraw"])
         @field(resolver: "App\\Withdraw@resolveCreateWithdraw")
 
     """
     新版本提现（限制1分钟30次）
     """
     createNewWithdraw(amount: Float, platform: WithdrawPlatformEnum!, type: WithdrawType): Withdraw
-        @middleware(checks: ["graphql:300,1,withdraw"])
+        # @middleware(checks: ["graphql:300,1,withdraw"])
         @field(resolver: "App\\Withdraw@resolveCreateNewWithdraw")
 }
 

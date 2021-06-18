@@ -1,5 +1,5 @@
 <?php
-namespace Haxibiao\WalletInvitation;
+namespace Haxibiao\Wallet\Traits;
 
 trait LuckyDrawRepo
 {

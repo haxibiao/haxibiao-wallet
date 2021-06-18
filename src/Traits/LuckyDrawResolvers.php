@@ -1,5 +1,5 @@
 <?php
-namespace Haxibiao\WalletInvitation;
+namespace Haxibiao\Wallet\Traits;
 
 use GraphQL\Type\Definition\ResolveInfo;
 use Haxibiao\Breeze\Exceptions\GQLException;

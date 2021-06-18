@@ -2,9 +2,9 @@
 
 namespace Haxibiao\Wallet;
 
-use Haxibiao\WalletInvitation\LuckyDrawAttrs;
-use Haxibiao\WalletInvitation\LuckyDrawRepo;
-use Haxibiao\WalletInvitation\LuckyDrawResolvers;
+use Haxibiao\Wallet\Traits\LuckyDrawAttrs;
+use Haxibiao\Wallet\Traits\LuckyDrawRepo;
+use Haxibiao\Wallet\Traits\LuckyDrawResolvers;
 use Illuminate\Database\Eloquent\Model;
 
 class LuckyDraw extends Model

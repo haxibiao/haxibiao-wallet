@@ -1,6 +1,6 @@
 <?php
 
-namespace Haxibiao\Wallet\Invitation;
+namespace Haxibiao\Wallet\Traits;
 
 trait InvitationAttrs
 {

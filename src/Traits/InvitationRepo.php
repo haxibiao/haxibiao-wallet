@@ -1,6 +1,6 @@
 <?php
 
-namespace Haxibiao\Wallet\Invitation;
+namespace Haxibiao\Wallet\Traits;
 
 use App\BanUser;
 use App\Exceptions\UserException;

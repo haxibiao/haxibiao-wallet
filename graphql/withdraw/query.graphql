@@ -20,7 +20,7 @@ extend type Query {
     """
     提现列表
     """
-    withdraws(wallet_id: Int): [Withdraw!] @paginate(defaultCount: 10, builder: "App\\Withdraw@resolverWithdraws")
+    withdraws(wallet_id: Int): [Withdraw!] @paginate(defaultCount: 10, builder: "App\\Withdraw@resolveWithdraws")
     dailyHigherWithdrawNotice(limit: Int): [String] @field(resolver: "App\\Withdraw@resolveDailyWithdrawNotice")
     withdrawOptions: [WithdrawOption] @field(resolver: "App\\Withdraw@resolveWithdrawOptions")
     getWithdrawAmountList: [WithdrawInfo]! @field(resolver: "App\\Withdraw@getWithdrawAmountList")

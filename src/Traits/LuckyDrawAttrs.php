@@ -1,6 +1,6 @@
 <?php
 
-namespace Haxibiao\WalletInvitation;
+namespace Haxibiao\Wallet\Traits;
 
 use Haxibiao\Wallet\LuckyDraw;
 

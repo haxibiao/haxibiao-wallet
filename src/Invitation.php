@@ -3,9 +3,9 @@
 namespace Haxibiao\Wallet;
 
 use Haxibiao\Breeze\Traits\ModelHelpers;
-use Haxibiao\WalletInvitation\InvitationResolvers;
-use Haxibiao\Wallet\Invitation\InvitationAttrs;
-use Haxibiao\Wallet\Invitation\InvitationRepo;
+use Haxibiao\Wallet\Traits\InvitationAttrs;
+use Haxibiao\Wallet\Traits\InvitationRepo;
+use Haxibiao\Wallet\Traits\InvitationResolvers;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
