@@ -1,8 +1,13 @@
 extend type Mutation @guard {
     setWalletPaymentInfo(input: walletInput @spread): Wallet @field(resolver: "App\\Wallet@setWalletPayment")
+    SetWalletInfo(input: WalletInfo): Wallet @field(resolver: "App\\Wallet@resolverSetWalletInfo")
 }
 
 input walletInput {
     pay_account: String
+    real_name: String
+}
+
+input WalletInfo {
     real_name: String
 }
