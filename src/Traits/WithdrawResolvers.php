@@ -18,12 +18,6 @@ trait WithdrawResolvers
         return Wallet::setInfo(getUser(), $args['input']);
     }
 
-    public function resolveWithdraws($rootValue, array $args, GraphQLContext $context, ResolveInfo $resolveInfo)
-    {
-        app_track_event("提现列表", 'list_withdraws', getUserId());
-        return Withdraw::orderBy('id', 'desc')->where('wallet_id', $args['wallet_id']);
-    }
-
     public function resolveWithdraw($rootValue, array $args, GraphQLContext $context, ResolveInfo $resolveInfo)
     {
         app_track_event("提现详情", 'show_withdraw', $args['id']);
@@ -144,10 +138,16 @@ trait WithdrawResolvers
         return $withdraw;
     }
 
-    public function resolverWithdraws($root, $args, $context, $info)
+    public function resolveWithdraws($rootValue, array $args, GraphQLContext $context, ResolveInfo $resolveInfo)
     {
-        $user = \getUser();
-        return $user->withdraws();
+        app_track_event("提现列表", '提现列表', getUserId());
+
+        if ($wallet_id = data_get($args, 'wallet_id')) {
+            return Withdraw::orderBy('id', 'desc')->where('wallet_id', $wallet_id);
+        } else {
+            $user = getUser();
+            return $user->withdraws();
+        }
     }
 
     public function resolveExchangeBalance(User $user, $gold)

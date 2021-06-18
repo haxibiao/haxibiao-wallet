@@ -12,13 +12,17 @@ type Withdraw {
     created_at: DateTime!
 }
 
-extend type Query @guard {
-    withdraw(id: Int @eq): Withdraw! @find
-    withdraws(wallet_id: Int! @eq, orderBy: [OrderByClause!]): [Withdraw]!
-        @paginate(defaultCount: 10, builder: "App\\Withdraw@resolveWithdraws")
-}
-
 extend type Query {
+    """
+    提现详情
+    """
+    withdraw(id: Int! @eq): Withdraw @find
+    """
+    提现列表
+    """
+    withdraws(wallet_id: Int): [Withdraw!] @paginate(defaultCount: 10, builder: "App\\Withdraw@resolverWithdraws")
+    dailyHigherWithdrawNotice(limit: Int): [String] @field(resolver: "App\\Withdraw@resolveDailyWithdrawNotice")
+    withdrawOptions: [WithdrawOption] @field(resolver: "App\\Withdraw@resolveWithdrawOptions")
     getWithdrawAmountList: [WithdrawInfo]! @field(resolver: "App\\Withdraw@getWithdrawAmountList")
 }
 
@@ -49,11 +53,4 @@ type WithdrawInfo {
 type WithdrawOption {
     platform: WithdrawPlatformEnum
     withdrawInfo: [WithdrawInfo]
-}
-
-extend type Query {
-    withdraw(id: Int! @eq): Withdraw @find
-    withdraws: [Withdraw!] @paginate(defaultCount: 10, builder: "App\\Withdraw@resolverWithdraws")
-    dailyHigherWithdrawNotice(limit: Int): [String] @field(resolver: "App\\Withdraw@resolveDailyWithdrawNotice")
-    withdrawOptions: [WithdrawOption] @field(resolver: "App\\Withdraw@resolveWithdrawOptions")
 }
