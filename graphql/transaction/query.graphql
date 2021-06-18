@@ -14,5 +14,5 @@ extend type Query {
     邀请用户列表
     """
     transactions(wallet_id: ID! @eq): [Transaction]
-        @paginate(defaultCount: 10, builder: "App\\Transaction@resolverTransactions")
+        @paginate(defaultCount: 10, builder: "App\\Transaction@resolveTransactions")
 }

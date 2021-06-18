@@ -91,7 +91,7 @@ class Transaction extends Model
         return number_format($this->balance, 4);
     }
 
-    public static function resolverTransactions($root, array $args, $context, $info)
+    public static function resolveTransactions($root, array $args, $context, $info)
     {
         return Transaction::thisWeek()->latest('id');
     }
