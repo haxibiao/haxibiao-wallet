@@ -1,0 +1,38 @@
+type Exchange {
+    id: ID
+    """
+    智慧点
+    """
+    gold: Int
+    """
+    rmb
+    """
+    rmb: Float
+    """
+    汇率
+    """
+    exchange_rate: Int
+    """
+    智慧点余额
+    """
+    gold_balance: Int
+    """
+    创建时间
+    """
+    created_at: String
+    """
+    用户
+    """
+    user: User
+}
+
+extend type Query {
+    """
+    兑换记录
+    """
+    exchanges: [Exchange!] @paginate(builder: "App\\Exchange@resolveExchanges", defaultCount: 10)
+    """
+    兑换详情
+    """
+    exchange(id: Int): Exchange @field(resolver: "App\\Exchange@resolveExchange")
+}

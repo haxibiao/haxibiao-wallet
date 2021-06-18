@@ -1,0 +1,10 @@
+extend type Mutation {
+    """
+    邀请用户
+    """
+    inviteUser(user_id: Int, account: String): Invitation @field(resolver: "App\\Invitation@resolveInviteUser")
+    """
+    绑定邀请
+    """
+    bindInvitation(invite_code: String!): Invitation @field(resolver: "App\\Invitation@resolveBindInvitation")
+}

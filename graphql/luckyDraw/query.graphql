@@ -1,0 +1,43 @@
+type LuckyDraw {
+    id: Int
+    amount: Int
+    status: Int
+    user: User
+    statusString: String
+    created_at: DateTime!
+    updated_at: DateTime!
+}
+
+extend type Query {
+    """
+    中奖名单
+    """
+    luckyDraws: [LuckyDraw] @paginate(defaultCount: 60, builder: "App\\LuckyDraw@resolveLuckyDraws")
+    """
+    用户是否中奖
+    """
+    luckyUser(user_id: Int! @eq): LuckyDraw @field(resolver: "App\\LuckyDraw@resolveLuckyUser")
+    """
+    高额抽奖完成条件检查
+    """
+    luckyDrawInfo: LuckyDrawInfo @field(resolver: "App\\LuckyDraw@resolveLuckyDrawInfo")
+
+    luckyDraw(id: Int! @eq): LuckyDraw @find
+}
+
+type LuckyDrawInfo {
+    countdown: String
+    signUp: Boolean
+    data: [LuckyDrawValue]
+}
+
+type LuckyDrawValue {
+    """
+    名称
+    """
+    name: String
+    """
+    进度
+    """
+    process: String
+}

@@ -1,0 +1,10 @@
+<?php
+
+namespace App;
+
+use Haxibiao\Wallet\Invitation as BaseInvitation;
+
+class Invitation extends BaseInvitation
+{
+
+}

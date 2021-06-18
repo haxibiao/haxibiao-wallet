@@ -1,13 +1,67 @@
-extend type Mutation @guard {
-    createWithdraw(
-        amount: Float!
-        platform: Platform = ALIPAY @spread
-        useWithdrawBadges: Boolean = false
-    ): Withdraw @field(resolver: "App\\Withdraw@resolveCreateNewWithdraw")
+extend type Mutation {
+    """
+    发起提现（限制1分钟5次）
+    """
+    createWithdraw(amount: Float!, platform: WithdrawPlatformEnum!, type: WithdrawType): Int!
+        @middleware(checks: ["graphql:300,1,withdraw"])
+        @field(resolver: "App\\Withdraw@resolveCreateWithdraw")
+
+    """
+    新版本提现（限制1分钟30次）
+    """
+    createNewWithdraw(amount: Float, platform: WithdrawPlatformEnum!, type: WithdrawType): Withdraw
+        @middleware(checks: ["graphql:300,1,withdraw"])
+        @field(resolver: "App\\Withdraw@resolveCreateNewWithdraw")
 }
 
-enum Platform {
-    ALIPAY @enum(value: alipay)
-    WECHAT @enum(value: wechat)
-    DONGDEZHUAN @enum(value: dongdezhuan) @deprecated(reason: "随懂得赚的分离，这个属性废弃")
+#提现平台枚举
+enum WithdrawPlatformEnum {
+    """
+    支付宝
+    """
+    alipay @enum(value: "alipay")
+    """
+    微信
+    """
+    wechat @enum(value: "wechat")
+    """
+    懂得赚
+    """
+    dongdezhuan @enum(value: "dongdezhuan")
+    """
+    答妹
+    """
+    damei @enum(value: "damei")
+    """
+    QQ
+    """
+    qq @enum(value: "qq")
+    """
+    京东金融
+    """
+    jdjr @enum(value: "jdjr")
+    """
+    全部
+    """
+    all @enum(value: "all")
+}
+
+# 提现类型
+enum WithdrawType {
+    """
+    固定金额提现
+    """
+    FIXED_AMOUNT @enum(value: 0)
+    """
+    随机金额提现
+    """
+    RANDOM_AMOUNT @enum(value: 1)
+    """
+    邀请活动提现
+    """
+    INVITE_ACTIVITY @enum(value: 2)
+    """
+    高额抽奖活动提现
+    """
+    LUCKYDRAW_TYPE @enum(value: 5)
 }

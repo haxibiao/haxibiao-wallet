@@ -1,0 +1,3 @@
+extend type Mutation {
+    joinLuckyDraw: LuckyDraw @field(resolver: "App\\LuckyDraw@resolveJoinLuckyDraw")
+}

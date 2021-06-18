@@ -1,0 +1,8 @@
+type Contribute {
+    id: Int
+    time: String
+    type: String
+    amount: Int
+    reason: String
+    user: User @belongsTo
+}

@@ -1,0 +1,11 @@
+type InitModuleConfig {
+    id: ID
+    JDJR: Boolean @field(resolver: "App\\User@resolveInitJDJR")
+}
+
+extend type Query {
+    """
+    模块初始化
+    """
+    initModule: InitModuleConfig @field(resolver: "App\\User@resolveInitModule")
+}

@@ -1,10 +1,12 @@
 type Withdraw {
-    id: Int
+    id: Int!
     status: Int
-    amount: Float!
+    wallet_id: Int
+    transaction_id: Int
+    amount: Float
     remark: String
-    biz_no: String
     trade_no: String
+    biz_no: String
     to_account: String
     to_platform: String
     created_at: DateTime!
@@ -21,13 +23,37 @@ extend type Query {
 }
 
 type WithdrawInfo {
-    amount: Float
-    description: String
+    """
+    额度是否对当前用户已禁用
+    """
+    disable: Int!
+    """
+    文字提示
+    """
     tips: String
+    amount: String
+    """
+    提现说明
+    """
+    description: String
     fontColor: String
     bgColor: String
-    """
-    限量抢倍率
-    """
-    highWithdrawCardsRate: Int @deprecated(reason: "随懂得赚的分离，这个属性废弃")
+    rule: String
+    leftTime: Float
+    needContributes: Int
+    platform: WithdrawPlatformEnum
+    type: WithdrawType
+    label: String
+}
+
+type WithdrawOption {
+    platform: WithdrawPlatformEnum
+    withdrawInfo: [WithdrawInfo]
+}
+
+extend type Query {
+    withdraw(id: Int! @eq): Withdraw @find
+    withdraws: [Withdraw!] @paginate(defaultCount: 10, builder: "App\\Withdraw@resolverWithdraws")
+    dailyHigherWithdrawNotice(limit: Int): [String] @field(resolver: "App\\Withdraw@resolveDailyWithdrawNotice")
+    withdrawOptions: [WithdrawOption] @field(resolver: "App\\Withdraw@resolveWithdrawOptions")
 }

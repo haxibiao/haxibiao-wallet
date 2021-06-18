@@ -1,0 +1,18 @@
+type Transaction {
+    id: Int!
+    wallet: Wallet @belongsTo
+    amount: Float
+    balance: Float
+    formated_amount: String
+    formated_balance: String
+    remark: String
+    created_at: String
+}
+
+extend type Query {
+    """
+    邀请用户列表
+    """
+    transactions(wallet_id: ID! @eq): [Transaction]
+        @paginate(defaultCount: 10, builder: "App\\Transaction@resolverTransactions")
+}

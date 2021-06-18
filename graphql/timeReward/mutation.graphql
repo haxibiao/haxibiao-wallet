@@ -1,0 +1,11 @@
+extend type Mutation {
+    """
+    奖励
+    """
+    timeReward(reward_type: TimeRewardEnum): TimeReward @field(resolver: "App\\TimeReward@resolveTimeReward")
+}
+
+#时间奖励枚举类型
+enum TimeRewardEnum {
+    HOUR_REWARD @enum(value: "HOUR_REWARD")
+}

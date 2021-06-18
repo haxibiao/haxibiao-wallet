@@ -1,0 +1,10 @@
+<?php
+
+namespace App;
+
+use Haxibiao\Wallet\TimeReward as BaseTimeReward;
+
+class TimeReward extends BaseTimeReward
+{
+
+}

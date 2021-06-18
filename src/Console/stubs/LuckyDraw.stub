@@ -1,0 +1,10 @@
+<?php
+
+namespace App;
+
+use Haxibiao\Wallet\LuckyDraw as BaseLuckyDraw;
+
+class LuckyDraw extends BaseLuckyDraw
+{
+
+}

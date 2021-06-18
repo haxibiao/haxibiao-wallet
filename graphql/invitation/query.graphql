@@ -1,0 +1,88 @@
+type Invitation {
+    id: Int!
+    user: User @belongsTo
+    invitedUser: User @belongsTo
+    account: String
+    invited_in: String
+    reward_amount: String
+}
+
+type UserStageInvitation {
+    """
+    ID
+    """
+    id: ID
+    """
+    邀请码
+    """
+    invite_code: String!
+    """
+    邀请口令
+    """
+    invite_slogan: String
+    """
+    钱包
+    """
+    wallet: Wallet
+    """
+    邀请阶段
+    """
+    stage: StageInvitation
+    """
+    今日邀请收入
+    """
+    today_invitation_income: String
+    """
+    今日徒弟分红
+    """
+    today_apprentice_bonus: String
+    """
+    今日徒孙分红
+    """
+    today_secondary_apprentice_bonus: String
+    """
+    当前邀请进度
+    """
+    invite_progress: String
+    """
+    自己是否被邀请
+    """
+    self_is_invited: Boolean
+    invitations_success_count: Int
+}
+
+type StageInvitation {
+    id: ID
+    name: String
+    reward_rate: Float
+    amount: Float
+}
+
+extend type Query {
+    """
+    邀请用户列表
+    """
+    invitationUsers(user_id: Int!): [User] @field(resolver: "App\\Invitation@resolveInvitationUsers")
+
+    """
+    邀请奖励列表
+    """
+    invitationRewards(limit: Int): [String] @field(resolver: "App\\Invitation@resolveInvitationRewards")
+
+    """
+    是否为邀请用户
+    """
+    isInviteUser(account: String!): Boolean @field(resolver: "App\\Invitation@resolveIsInviteUser")
+
+    userInvitation(user_id: ID! @spread): UserStageInvitation
+        @field(resolver: "App\\UserStageInvitation@resolveUserStageInvitation")
+
+    invitations(status: InvitationStatusFilter!): [Invitation]
+        @paginate(builder: "App\\Invitation@resolveInvitations", defaultCount: 10)
+}
+
+enum InvitationStatusFilter {
+    ACTIVE
+    INACTIVE
+    SECONDARY_APPRENTICE
+}

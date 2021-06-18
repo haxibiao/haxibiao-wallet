@@ -1,0 +1,59 @@
+type SystemConfig {
+    time: String
+    time_unix: Int
+    server_name: String
+    next_time_hour_reward: TimeHourRewardObject
+    modules: SystemModule
+}
+
+type SystemModule {
+    game: SystemModuleObject
+    question_checkpoint_mode: SystemModuleObject
+}
+
+type SystemModuleObject {
+    status: Int
+    gold_ad_reward: Int
+    contribute_ad_reward: Int
+    ticket_ad_reward: Int
+    ticket_loss: Int
+    gold_loss: Int
+    match_time_ms: Int
+}
+
+type TimeHourRewardObject {
+    time: String
+    time_unix: Int
+}
+
+type TimeReward {
+    id: ID
+    """
+    用户
+    """
+    user: User
+    """
+    奖励类型
+    """
+    reward_type: String
+    """
+    奖励值
+    """
+    reward_value: Int
+    """
+    智慧点奖励
+    """
+    gold_reward: Int
+    """
+    精力点奖励
+    """
+    ticket_reward: Int
+    """
+    贡献点奖励
+    """
+    contribute_reward: Int
+}
+
+extend type Query {
+    SystemConfig: SystemConfig @field(resolver: "App\\TimeReward@SystemConfigResolver")
+}

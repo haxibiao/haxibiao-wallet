@@ -1,0 +1,6 @@
+extend type Mutation {
+    """
+    兑换现金
+    """
+    ExchangeCash(gold: Int!): Int @field(resolver: "App\\Exchange@resolveExchangeCash")
+}
