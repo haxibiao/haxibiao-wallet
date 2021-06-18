@@ -1,6 +1,6 @@
 extend type Mutation @guard {
     setWalletPaymentInfo(input: walletInput @spread): Wallet @field(resolver: "App\\Wallet@setWalletPayment")
-    SetWalletInfo(input: WalletInfo): Wallet @field(resolver: "App\\Wallet@resolverSetWalletInfo")
+    SetWalletInfo(input: WalletInfo): Wallet @field(resolver: "App\\Wallet@resolveSetWalletInfo")
 }
 
 input walletInput {

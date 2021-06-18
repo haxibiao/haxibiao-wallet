@@ -9,6 +9,7 @@ use Nuwave\Lighthouse\Support\Contracts\GraphQLContext;
 
 trait WalletResolvers
 {
+
     public function resolveSetWalletInfo($root, $args, $context, $info)
     {
         app_track_event("个人中心", "设置钱包信息");

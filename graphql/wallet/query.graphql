@@ -32,7 +32,7 @@ type Wallet {
     gold_balance: Float
 }
 
-type PayPlatForm {
+type PayPlatform {
     qq: String
     alipay: String
     wechat: String
