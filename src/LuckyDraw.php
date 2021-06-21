@@ -2,6 +2,7 @@
 
 namespace Haxibiao\Wallet;
 
+use Haxibiao\Breeze\Traits\ModelHelpers;
 use Haxibiao\Wallet\Traits\LuckyDrawAttrs;
 use Haxibiao\Wallet\Traits\LuckyDrawRepo;
 use Haxibiao\Wallet\Traits\LuckyDrawResolvers;
@@ -12,6 +13,7 @@ class LuckyDraw extends Model
     use LuckyDrawResolvers;
     use LuckyDrawRepo;
     use LuckyDrawAttrs;
+    use ModelHelpers;
     public $fillable = [
         'user_id',
         'amount',
