@@ -9,7 +9,8 @@ type Withdraw {
     biz_no: String
     to_account: String
     to_platform: String
-    created_at: DateTime!
+    updated_at: DateTime
+    created_at: DateTime
 }
 
 extend type Query {
