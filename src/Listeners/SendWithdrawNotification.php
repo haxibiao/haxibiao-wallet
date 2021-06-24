@@ -3,8 +3,8 @@
 namespace Haxibiao\Wallet\Listeners;
 
 use Haxibiao\Wallet\Events\WithdrawalDone;
-use Haxibiao\Wallet\Notifications\WithdrawFailureNotification;
-use Haxibiao\Wallet\Notifications\WithdrawSuccessNotification;
+use Haxibiao\Wallet\Notifications\WithdrawNotification;
+use Haxibiao\Wallet\Withdraw;
 
 class SendWithdrawNotification
 {
@@ -34,13 +34,9 @@ class SendWithdrawNotification
         $user           = $this->withdraw->user;
 
         if ($user) {
-            //成功提现
-            if ($this->withdraw->isSuccess()) {
-                return $user->notify(new WithdrawSuccessNotification($this->withdraw));
-            }
-            //失败提现
-            if ($this->withdraw->isFailed()) {
-                return $user->notify(new WithdrawFailureNotification($this->withdraw));
+            //提现成功or失败通知
+            if ($this->withdraw->status != Withdraw::WAITING_WITHDRAW) {
+                return $user->notify(new WithdrawNotification($this->withdraw));
             }
         }
     }
