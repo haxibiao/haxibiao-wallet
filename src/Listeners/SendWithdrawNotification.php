@@ -2,8 +2,8 @@
 
 namespace Haxibiao\Wallet\Listeners;
 
+use Haxibiao\Breeze\Notifications\WithdrawNotification;
 use Haxibiao\Wallet\Events\WithdrawalDone;
-use Haxibiao\Wallet\Notifications\WithdrawNotification;
 use Haxibiao\Wallet\Withdraw;
 
 class SendWithdrawNotification
