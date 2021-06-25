@@ -29,8 +29,6 @@ class WithdrawNotification extends BreezeNotification
      */
     public function toArray($notifiable)
     {
-        $data = $this->senderToArray();
-
         $withdraw = $this->withdraw;
         //提现文本描述
         $message = "";
@@ -45,12 +43,12 @@ class WithdrawNotification extends BreezeNotification
                             【{$withdraw->amount}】元 申请处理失败。回执信息：{$withdraw->remark}。";
         }
         //互动对象
-        $data = array_merge($data, [
+        $data = [
             'type'    => $withdraw->getMorphClass(),
             'id'      => $withdraw->id,
             'title'   => "提现通知", //标题
             'message' => $message, //通知主体内容
-        ]);
+        ];
 
         return $data;
     }
