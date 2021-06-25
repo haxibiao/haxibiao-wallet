@@ -2,11 +2,11 @@
 
 namespace Haxibiao\Wallet\Notifications;
 
-use Haxibiao\Breeze\Notifications\BreezeNotification;
 use Haxibiao\Wallet\Withdraw;
 use Illuminate\Bus\Queueable;
+use Illuminate\Notifications\Notification;
 
-class WithdrawNotification extends BreezeNotification
+class WithdrawNotification extends Notification
 {
     use Queueable;
 
@@ -19,6 +19,11 @@ class WithdrawNotification extends BreezeNotification
     public function __construct(Withdraw $withdraw)
     {
         $this->withdraw = $withdraw;
+    }
+
+    public function via($notifiable)
+    {
+        return ['database'];
     }
 
     /**
