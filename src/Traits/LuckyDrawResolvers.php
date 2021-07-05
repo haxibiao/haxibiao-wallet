@@ -2,7 +2,7 @@
 namespace Haxibiao\Wallet\Traits;
 
 use GraphQL\Type\Definition\ResolveInfo;
-use Haxibiao\Breeze\Exceptions\GQLException;
+use Haxibiao\Breeze\Exceptions\UserException;
 use Haxibiao\Question\Answer;
 use Haxibiao\Task\Assignment;
 use Haxibiao\Task\Task;
@@ -39,13 +39,13 @@ trait LuckyDrawResolvers
         if ($luckyDraw || $isOldUser) {
             //不能重复报名参加
             if ($luckyDraw && $luckyDraw->created_at > today()) {
-                throw new GQLException("您已报名成功，明天记得登录查看抽奖结果哦~");
+                throw new UserException("您已报名成功，明天记得登录查看抽奖结果哦~");
             }
             //看有趣小视频任务2次
             //答题20道
             $task = \App\Task::whereName('有趣小视频')->first();
             if (empty($task)) {
-                throw new GQLException("活动已关闭,具体详情请联系官方客服！");
+                throw new UserException("活动已关闭,具体详情请联系官方客服！");
             }
             $assignment       = Assignment::where('user_id', $user->id)->where('task_id', $task->id)->first();
             $todayAnswerCount = Answer::where('user_id', $user->id)->today()->count();
@@ -53,7 +53,7 @@ trait LuckyDrawResolvers
             if ($todayAnswerCount < LuckyDraw::JOIN_ANSWER_COUNT
                 || empty($assignment)
                 || $assignment->current_count < LuckyDraw::JOIN_DRAW_COUNT) {
-                throw new GQLException("需完成今日答20道题,并观看有趣小视频,才可以报名");
+                throw new UserException("需完成今日答20道题,并观看有趣小视频,才可以报名");
             }
         }
 
