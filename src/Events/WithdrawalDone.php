@@ -32,6 +32,9 @@ class WithdrawalDone implements ShouldBroadcast
      */
     public function broadcastOn()
     {
+		if(in_array(config('app.name'),['haxibiao','yinxiangshipin'])){
+			return new PrivateChannel(config('app.name').'.User.' . $this->withdraw->user_id);
+		}
         return new PrivateChannel('App.User.' . $this->withdraw->user_id);
     }
 
