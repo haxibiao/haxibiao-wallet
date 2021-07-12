@@ -13,6 +13,9 @@ class CreateTimeRewardsTable extends Migration
      */
     public function up()
     {
+        if (Schema::hasTable('time_rewards')) {
+            return;
+        }
         Schema::create('time_rewards', function (Blueprint $table) {
             $table->increments('id');
             $table->unsignedInteger('user_id')->index()->comment('用户ID');
