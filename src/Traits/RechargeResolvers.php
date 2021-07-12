@@ -14,8 +14,13 @@ trait RechargeResolvers
      * 发起充值请求,获取交易平台提供的签名唤起app
      * 签名包含: 充值金额,内部交易标识,充值标题
      */
-    public static function rsolverGetRechargeSignature($amount, $platform, $remark = null, $trade_no = null)
+    public static function rsolveGetRechargeSignature($root, array $args, $context, $info)
     {
+        $amount   = $args['amount'];
+        $platform = $args['platform'];
+        $remark   = $args['remark'] ?? null;
+        $trade_no = $args['trade_no'] ?? null;
+
         $user     = getUser();
         $title    = $remark ?? sprintf('%s充值%s', config('app.name_cn'), $amount);
         $trade_no = $trade_no ?? \str_random(30);
