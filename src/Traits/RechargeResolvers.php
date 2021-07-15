@@ -58,8 +58,12 @@ trait RechargeResolvers
     /**
      * 效验苹果支付状态
      */
-    public static function ResolverVerifyApplePay($receipt, $trade_no, $isSandBox)
+    public static function resolveVerifyApplePay($root, array $args, $context, $info)
     {
+        $receipt   = $args['receipt'] ?? null;
+        $trade_no  = $args['trade_no'] ?? null;
+        $isSandBox = $args['isSandBox'] ?? null;
+
         $sendData = "{\"receipt-data\":\"$receipt\"}";
         $url      = $isSandBox ? RechaRge::APPLE_BUY_SANDBOX_URL : RechaRge::APPLE_BUY_URL;
         try {

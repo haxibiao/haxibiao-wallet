@@ -28,7 +28,7 @@ extend type Mutation {
     是否为沙箱环境
     """
     isSandBox: Boolean = true
-  ): Recharge @field(resolver: "Haxibiao\\Wallet\\Recharge@ResolverVerifyApplePay")
+  ): Recharge @field(resolver: "Haxibiao\\Wallet\\Recharge@resolveVerifyApplePay")
 }
 
 type PlatfromSignature {
