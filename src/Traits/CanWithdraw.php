@@ -11,6 +11,7 @@ use Haxibiao\Wallet\InvitationWithdraw;
 use Haxibiao\Wallet\JDJRWithdraw;
 use Haxibiao\Wallet\LuckyWithdraw;
 use Haxibiao\Wallet\Withdraw;
+use Illuminate\Support\Facades\Cache;
 
 trait CanWithdraw
 {
@@ -43,7 +44,11 @@ trait CanWithdraw
             //检查提现开放时间
             Withdraw::checkWithdrawTime();
             // 检查时间和限量抢限流控制并发(邀请活动提现,不受此限制)
-            Withdraw::checkHighWithdraw($user, $amount);
+            //不限制：白名单(开发,测试,hotfix才用)
+            $isWhiteListUser = is_prod_env() && in_array($user->id, Withdraw::getUserIdWhiteList());
+            if (!$isWhiteListUser) {
+                Withdraw::checkHighWithdraw($user, $amount);
+            }
             Withdraw::checkWithdrawType($type, $platform);
             // 检查刷子 && 账户异常 && 提示刷子用户,暂时只能提现到答妹
             Withdraw::checkShuaZi($user, $platform, $type);
@@ -106,13 +111,6 @@ trait CanWithdraw
             $hour   = now()->hour;
             $minute = now()->minute;
 
-            //不限制：白名单(开发,测试,hotfix才用)
-            if (is_prod_env()) {
-                if (in_array($user->id, Withdraw::getUserIdWhiteList())) {
-                    return;
-                }
-            }
-
             //新注册3小时内的用户不能高额提现，防止撸毛
             if (!now()->diffInHours($user->created_at) >= 3) {
                 throw new UserException('当前限量抢额度已被抢光了,下个时段再试吧');
@@ -129,6 +127,23 @@ trait CanWithdraw
             if ($withdrawLines < $amount) {
                 throw new UserException('限量抢额度已被抢光了,下个时段再试吧');
             }
+
+            // DTZQ-551 根据用户提现到总金额,去动态控制老用户的高额提现几率
+            $successWithdrawAmount = $user->success_withdraw_amount;
+            $seconds               = today()->addDay()->diffInSeconds(now());
+            $key                   = sprintf('%s:%s:rate', date('Ymd'), $user->id);
+            $rate                  = Cache::store('redis')->remember($key, $seconds, function () {
+                return mt_rand(1, 10);
+            });
+            $canWithdraw = true;
+            if ($successWithdrawAmount > 5 && $successWithdrawAmount <= 10) {
+                $canWithdraw = $rate <= 7;
+            } else if ($successWithdrawAmount <= 15) {
+                $canWithdraw = $rate <= 5;
+            } else if ($successWithdrawAmount > 15) {
+                $canWithdraw = $rate <= 3;
+            }
+            throw_if(!$canWithdraw, UserException::class, '今日限量抢额度已被抢光了,请明日再试');
 
             /**
              * 限流:
