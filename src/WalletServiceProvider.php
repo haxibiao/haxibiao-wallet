@@ -17,10 +17,6 @@ class WalletServiceProvider extends ServiceProvider
      * @var array
      */
     protected $listen = [
-        'Haxibiao\Wallet\Events\WithdrawalDone' => [
-            'Haxibiao\Wallet\Listeners\InvitationReward',
-            'Haxibiao\Wallet\Listeners\SendWithdrawNotification',
-        ],
     ];
 
     /**
@@ -31,6 +27,7 @@ class WalletServiceProvider extends ServiceProvider
     public function boot()
     {
         $this->bindObservers();
+        $this->bindListeners();
 
         Relation::morphMap([
             'recharges' => '\Haxibiao\Wallet\Recharge',
@@ -70,6 +67,19 @@ class WalletServiceProvider extends ServiceProvider
     public function bindObservers()
     {
         \Haxibiao\Wallet\Withdraw::observe(\Haxibiao\Wallet\Observers\WithdrawObserver::class);
+    }
+
+    public function bindListeners()
+    {
+        \Illuminate\Support\Facades\Event::listen(
+            'Haxibiao\Wallet\Events\WithdrawalDone',
+            'Haxibiao\Wallet\Listeners\InvitationReward'
+        );
+        \Illuminate\Support\Facades\Event::listen(
+
+            'Haxibiao\Wallet\Events\WithdrawalDone',
+            'Haxibiao\Wallet\Listeners\SendWithdrawNotification'
+        );
     }
 
     protected function registerCommands()
