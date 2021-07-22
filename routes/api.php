@@ -1,6 +1,5 @@
 <?php
 
-use Haxibiao\Wallet\Controllers\Api\PayController;
 use Illuminate\Contracts\Routing\Registrar as RouteRegisterContract;
 use Illuminate\Support\Facades\Route;
 
