@@ -49,7 +49,7 @@ trait RechargeRepo
                     $user->save();
                 }
             } else {
-                Transaction::makeIncome($user->wallet, $amount, $platform . '充值到账');
+                Transaction::makeIncome($user->wallet, $amount, $platform . '充值到账', ['type' => '充值', 'status' => '已到账']);
             }
 
             // 更新充值记录状态，保存交易平台回调数据
