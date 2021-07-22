@@ -1,6 +1,6 @@
 <?php
 
-namespace Haxibiao\Wallet\Http\Controllers;
+namespace Haxibiao\Wallet\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
 use Haxibiao\Wallet\Recharge;
