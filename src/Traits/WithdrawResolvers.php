@@ -143,10 +143,10 @@ trait WithdrawResolvers
         app_track_event("提现列表", '提现列表', getUserId());
 
         if ($wallet_id = data_get($args, 'wallet_id')) {
-            return Withdraw::orderBy('id', 'desc')->where('wallet_id', $wallet_id);
+            return Withdraw::latest('id')->where('wallet_id', $wallet_id);
         } else {
             $user = getUser();
-            return $user->withdraws();
+            return $user->withdraws()->latest('id');
         }
     }
 
