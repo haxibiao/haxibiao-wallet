@@ -14,7 +14,7 @@ extend type Query {
   """
   用户充值记录
   """
-  recharges(user_id: Int! @eq): [Recharge!] @paginate(defaultCount: 10)
+  recharges(user_id: Int! @eq, orderBy: [OrderByClause!] @orderBy): [Recharge!] @paginate(defaultCount: 10)
   """
   交易详情
   """
