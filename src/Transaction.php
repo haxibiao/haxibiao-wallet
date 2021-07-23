@@ -10,16 +10,7 @@ class Transaction extends Model
 {
     use ModelHelpers;
 
-    protected $fillable = [
-        'wallet_id',
-        'amount',
-        'balance',
-        'remark',
-        'created_at',
-        'updated_at',
-        'type',
-        'relate_id',
-    ];
+    protected $guarded = [];
 
     public function wallet()
     {
