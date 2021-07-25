@@ -403,6 +403,11 @@ trait WithdrawRepo
         return $this->type == Withdraw::INVITE_ACTIVITY_TYPE;
     }
 
+    public function isLuckyDrawType()
+    {
+        return $this->type == Withdraw::LUCKYDRAW_TYPE;
+    }
+
     public static function balanceSpendSmsNotice($to_platform, $msg)
     {
         //qq、微信、支付宝

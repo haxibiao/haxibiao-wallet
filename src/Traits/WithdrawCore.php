@@ -3,16 +3,17 @@
 namespace Haxibiao\Wallet\Traits;
 
 use Exception;
-use Haxibiai\Wallet\Exceptions\WithdrawException;
 use Haxibiao\Breeze\ErrorLog;
 use Haxibiao\Breeze\Exceptions\ErrorCode;
 use Haxibiao\Wallet\Events\WithdrawalDone;
 use Haxibiao\Wallet\Exceptions\PayPlatformBalanceNotEnoughException;
+use Haxibiao\Wallet\Exceptions\WithdrawException;
 use Haxibiao\Wallet\Exchange;
 use Haxibiao\Wallet\Gold;
 use Haxibiao\Wallet\InvitationWithdraw;
 use Haxibiao\Wallet\JDJRWithdraw;
 use Haxibiao\Wallet\Jobs\ProcessWithdraw;
+use Haxibiao\Wallet\LuckyWithdraw;
 use Haxibiao\Wallet\Strategies\Pay\PayContext;
 use Haxibiao\Wallet\Transaction;
 use Haxibiao\Wallet\Withdraw;
@@ -34,6 +35,10 @@ trait WithdrawCore
 
         if ($this->isInviteActivityType()) {
             return InvitationWithdraw::find($this->id);
+        }
+
+        if ($this->isLuckyDrawType()) {
+            return LuckyWithdraw::find($this->id);
         }
 
         return $this;
@@ -106,7 +111,7 @@ trait WithdrawCore
         return $this;
     }
 
-    private function makingTransfer()
+    protected function makingTransfer()
     {
         $wallet                                  = $this->wallet;
         $user                                    = $this->user;
@@ -222,6 +227,7 @@ trait WithdrawCore
     public function settleSuccess($tradeNo)
     {
         $withdraw = null;
+        DB::beginTransaction();
         try {
             $withdraw = static::lockForUpdate()->find($this->id);
             if (!is_null($withdraw)) {

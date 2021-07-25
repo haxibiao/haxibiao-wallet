@@ -1,6 +1,6 @@
 <?php
 
-namespace Haxibiai\Wallet\Exceptions;
+namespace Haxibiao\Wallet\Exceptions;
 
 use Exception;
 use Haxibiao\Breeze\Exceptions\ErrorCode;
