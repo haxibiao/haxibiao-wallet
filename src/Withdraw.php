@@ -2,6 +2,7 @@
 
 namespace Haxibiao\Wallet;
 
+use App\User;
 use Haxibiao\Breeze\Traits\ModelHelpers;
 use Haxibiao\Wallet\Traits\CanWithdraw;
 use Haxibiao\Wallet\Traits\WithdrawCore;
@@ -164,7 +165,7 @@ class Withdraw extends Model
 
     public function user()
     {
-        return $this->wallet->user();
+        return $this->belongsTo(User::class);
     }
 
     public function wallet(): BelongsTo
