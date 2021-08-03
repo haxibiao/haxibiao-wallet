@@ -3,6 +3,7 @@
 namespace Haxibiao\Wallet\Traits;
 
 use App\User;
+use Exception;
 use Haxibiao\Breeze\Exceptions\ErrorCode;
 use Haxibiao\Breeze\Exceptions\GQLException;
 use Haxibiao\Breeze\Exceptions\UserException;
@@ -19,6 +20,40 @@ use Illuminate\Support\Str;
 
 trait WalletRepo
 {
+
+    //打赏用户
+    public static function tipUser($user, $target_user, $amount)
+    {
+        $wallet = $user->wallet;
+        //余额不足，自动提前兑换金币
+        if (!$wallet->availablePay($amount)) {
+            // 现金钱包,兑换智慧点到余额中
+            if ($wallet->isOfRMB()) {
+                //兑换现金
+                Wallet::exchangeBalance($user, $amount);
+                //刷新一下余额,不用刷新整个wallet对象
+                $wallet->refreshBalance();
+            }
+            //兑换余额后,还不能支付提现金额
+            if (!$wallet->availablePay($amount)) {
+                throw new UserException("账户余额不足,打赏失败!");
+            }
+        }
+        DB::beginTransaction();
+        try {
+            //创建交易记录-my
+            Transaction::makeIncome($user->wallet, $amount, "打赏【{$target_user->name}】支付", ['type' => '打赏', 'status' => '已扣除', 'user_id' => $user->id]);
+            //创建交易记录-other
+            Transaction::makeIncome($user->wallet, $amount, "获得【{$user->name}】的打赏", ['type' => '打赏', 'status' => '已到账', 'user_id' => $target_user->id]);
+
+        } catch (Exception $e) {
+            Log::error($e->getMessage());
+            DB::rollBack();
+        }
+        DB::commit();
+
+        return true;
+    }
 
     public static function exchangeBalance($user, $amount)
     {

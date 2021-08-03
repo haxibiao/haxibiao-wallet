@@ -1,6 +1,7 @@
 <?php
 namespace Haxibiao\Wallet\Traits;
 
+use App\User;
 use GraphQL\Type\Definition\ResolveInfo;
 use Haxibiao\Breeze\Exceptions\GQLException;
 use Haxibiao\Wallet\Wallet;
@@ -9,6 +10,18 @@ use Nuwave\Lighthouse\Support\Contracts\GraphQLContext;
 
 trait WalletResolvers
 {
+
+    public function resolveTipUser($root, $args, $context, $info)
+    {
+        //自己
+        $user = getUser();
+        //打赏对象id
+        $target_user_id = $args['user_id'];
+        $target_user    = User::findOrFail($target_user_id);
+        //打赏金额
+        $amount = $args['amount'];
+        Wallet::tipUser($user, $target_user, $amount);
+    }
 
     public function resolveSetWalletInfo($root, $args, $context, $info)
     {

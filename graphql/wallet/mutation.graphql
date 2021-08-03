@@ -1,6 +1,7 @@
 extend type Mutation @guard {
     setWalletPaymentInfo(input: walletInput @spread): Wallet @field(resolver: "App\\Wallet@setWalletPayment")
     SetWalletInfo(input: WalletInfo): Wallet @field(resolver: "App\\Wallet@resolveSetWalletInfo")
+    tipUser(target_user_id:Int,amount:Int):Boolean@field($resolver::"App\\Wallet@resolveTipUser")
 }
 
 input walletInput {

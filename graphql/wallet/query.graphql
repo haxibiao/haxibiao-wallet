@@ -1,39 +1,14 @@
-type Wallet {
-    id: Int!
-    user: User
-    available_withdraw_count: Int
-    total_withdraw_amount_sum: Float
-    today_withdraw_amount: Float
-    pay_info_change_count: Int
-    formated_balance: String
-    """
-    微信绑定成功后的open_id
-    """
-    wechat_open_id: String
-    """
-    支付宝绑定后的open_id
-    """
-    alipay_open_id: String
-    """
-    账户变动记录
-    """
-    transactions: [Transaction] @hasMany(type: "paginator", defaultCount: 10)
-    platforms: PayPlatform
-    bind_platforms: PayPlatform
-    type: Int
-    pay_account: String
-    real_name: String
-    pay_infos: String
-    withdraws: [Withdraw!] @hasMany(type: "paginator", defaultCount: 10)
-    balance: Float
-    total_withdraw_amount: Float
-    today_withdraw_left: Float
-    available_balance: Float
-    gold_balance: Float
+extend type Mutation @guard {
+  setWalletPaymentInfo(input: walletInput @spread): Wallet @field(resolver: "App\\Wallet@setWalletPayment")
+  SetWalletInfo(input: WalletInfo): Wallet @field(resolver: "App\\Wallet@resolveSetWalletInfo")
+  tipUser(target_user_id: Int, amount: Int): Boolean @field(resolver: "App\\Wallet@resolveTipUser")
 }
 
-type PayPlatform {
-    qq: String
-    alipay: String
-    wechat: String
+input walletInput {
+  pay_account: String
+  real_name: String
+}
+
+input WalletInfo {
+  real_name: String
 }
