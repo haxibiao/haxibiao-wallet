@@ -55,6 +55,11 @@ class Wallet extends Model
         return $this->hasMany(Transaction::class)->latest('id');
     }
 
+    public function incomeTransactions()
+    {
+        return $this->hasMany(Transaction::class)->income();
+    }
+
     public function golds()
     {
         //FIXME: 修复之前user_id对应的golds流水未对应的钱包的
@@ -205,12 +210,12 @@ class Wallet extends Model
 
     public function todayIncome()
     {
-        return $this->transactions()->where('amount', '>', 0)->whereBetWeen('created_at', [today(), today()->addDay()])->sum('amount');
+        return $this->incomeTransactions()->whereBetWeen('created_at', [today(), today()->addDay()])->sum('amount');
     }
 
     public function getTotalIncomeAttribute()
     {
-        return $this->transactions()->where('amount', '>', 0)->sum('amount');
+        return $this->incomeTransactions()->sum('amount');
     }
 
     public static function findOrCreate($userId, $type = self::RMB_TYPE)
@@ -342,5 +347,10 @@ class Wallet extends Model
             'type'    => Wallet::RMB_WALLET,
         ]);
         return $wallet;
+    }
+
+    public function totalIncomeWithInvitation()
+    {
+        return $this->incomeTransactions()->whereNotIn('type', ['withdraws'])->sum('amount');
     }
 }

@@ -17,6 +17,11 @@ class Transaction extends Model
         return $this->belongsTo(Wallet::class);
     }
 
+    public function scopeIncome($query)
+    {
+        return $query->where('amount', '>', 0);
+    }
+
     public static function makeIncome($wallet, $amount, $remark = '智慧点兑换', $otherData = []): Transaction
     {
         $balance = $wallet->balance + $amount;
