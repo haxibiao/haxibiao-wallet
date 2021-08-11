@@ -99,8 +99,8 @@ trait CanWithdraw
     public static function checkWithdrawStatus($wallet, $amount)
     {
         //待处理中
-        $withdraw = WithDraw::where('wallet_id', $wallet->id)->where('amount', $amount)->latest('id')->first();
-        throw_if($withdraw->status == WithDraw::WATING_STATUS, UserException::class, '提现正在处理中，请耐心等待，如有疑问请提交反馈哦');
+        $hasWatingWithdraw = $wallet->withdraws()->wating()->where('amount', $amount)->exists();
+        throw_if($hasWatingWithdraw, UserException::class, '提现正在处理中，请耐心等待，如有疑问请提交反馈哦');
     }
 
     // 风控手段: 限制允许发起限量抢提现的时间
