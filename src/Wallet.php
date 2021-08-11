@@ -351,6 +351,10 @@ class Wallet extends Model
 
     public function totalIncomeWithInvitation()
     {
-        return $this->incomeTransactions()->whereNotIn('type', ['withdraws'])->sum('amount');
+        return $this->incomeTransactions()->where(function ($query) {
+            // XXX:transactions table  type column allow nullable
+            // but it will cause “whereNotIn” method auto filter nullable column data
+            $query->whereNotIn('type', ['withdraws'])->orWhere('type');
+        })->sum('amount');
     }
 }
