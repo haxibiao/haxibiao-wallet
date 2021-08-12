@@ -2,7 +2,6 @@
 
 namespace Haxibiao\Wallet\Traits;
 
-use Haxibiao\Wallet\BanUser;
 use Haxibiao\Wallet\Gold;
 
 trait GoldRepo
@@ -13,12 +12,12 @@ trait GoldRepo
      */
     public static function detectBadUser($user)
     {
-        $date = today();
+        // $date = today();
 
-        if ($user->profile->answers_count_today > 1000) {
-            $reason = "异常日期: {$date->toDateString()} 今日答题数超过1000不正常";
-            BanUser::record($user, $reason, false);
-        }
+        // if ($user->profile->answers_count_today > 1000) {
+        //     $reason = "异常日期: {$date->toDateString()} 今日答题数超过1000不正常";
+        //     BanUser::record($user, $reason, false);
+        // }
     }
 
     public static function resetGold($user, $remark)
@@ -42,11 +41,11 @@ trait GoldRepo
     {
         $balance  = $user->gold - $gold;
         $goldItem = Gold::create([
-            'user_id' => $user->id,
+            'user_id'   => $user->id,
             'wallet_id' => $user->goldWallet->id,
-            'gold'    => -$gold,
-            'balance' => $balance,
-            'remark'  => $remark,
+            'gold'      => -$gold,
+            'balance'   => $balance,
+            'remark'    => $remark,
         ]);
 
         //确保账户和gold记录余额同步，observer有不触发的情况
@@ -60,11 +59,11 @@ trait GoldRepo
     {
         $balance  = $user->gold + $gold;
         $goldItem = Gold::create([
-            'user_id' => $user->id,
+            'user_id'   => $user->id,
             'wallet_id' => $user->goldWallet->id,
-            'gold'    => $gold,
-            'balance' => $balance,
-            'remark'  => $remark,
+            'gold'      => $gold,
+            'balance'   => $balance,
+            'remark'    => $remark,
         ]);
 
         //确保账户和gold记录余额同步，observer有不触发的情况
