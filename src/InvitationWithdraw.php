@@ -2,8 +2,8 @@
 
 namespace Haxibiao\Wallet;
 
-use App\User;
 use App\UserStageInvitation;
+use Haxibiao\Wallet\Strategies\Pay\PayContext;
 
 class InvitationWithdraw extends Withdraw
 {
@@ -90,5 +90,34 @@ class InvitationWithdraw extends Withdraw
     public static function checkWithdrawPlatform($user, $platform)
     {
         throw_if(!in_array($platform, [Withdraw::ALIPAY_PLATFORM, Withdraw::WECHAT_PLATFORM]), UserException::class, '提现失败,邀请活动只支持提现至微信或支付宝账户中!');
+    }
+
+    protected function makingTransfer()
+    {
+        $user                                    = $this->user;
+        $platform                                = $this->to_platform;
+        list($siteName, $siteDomain, $isOurSite) = Withdraw::getPlatformInfo($platform);
+        if (!$isOurSite) {
+            // 支付宝、微信、QQ等提现策略业务参数
+            $transferPaymentInfo = [
+                'systemBizNo' => $this->biz_no,
+                'amount'      => $this->amount,
+                'pay_id'      => $this->to_account,
+                'real_name'   => data_get($user->wallet, 'real_name', ''),
+                'remark'      => sprintf('【%s】提现', config('app.name_cn')),
+            ];
+        } else {
+            // 内部站点服务群:答妹、懂得赚提现策略业务参数
+            $transferPaymentInfo = [
+                'uuid'                    => $user->uuid,
+                'transfer_to_domain'      => $siteDomain,
+                'transfer_to_site_userid' => $this->to_account,
+                'system_userid'           => $this->user_id,
+                'amount'                  => $this->amount,
+            ];
+        }
+
+        $strategy = $platform == 'qq' ? 'QPay' : ($isOurSite ? 'HashSitePay' : $platform);
+        return PayContext::setStrategy($strategy)->transfer($transferPaymentInfo);
     }
 }
