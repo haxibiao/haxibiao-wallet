@@ -24,11 +24,15 @@ class Wechat extends PayStrategy
      * @param string $bizData['remark']
      * @return TransferResult
      */
-    public function transfer(array $bizData, $appId = null): TransferResult
+    public function transfer(array $bizData): TransferResult
     {
         $transferInfo = Wechat::buildTransferInfo($bizData);
+        $config       = config('pay.wechat');
+        if (isset($bizData['appid'])) {
+            $config['appid'] = $bizData['appid'];
+        }
         try {
-            $res = Pay::wechat(config('pay.wechat'))->transfer($transferInfo);
+            $res = Pay::wechat($config)->transfer($transferInfo);
         } catch (\Exception $ex) {
             $res = $ex->raw ?? null;
         }

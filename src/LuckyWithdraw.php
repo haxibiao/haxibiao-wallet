@@ -2,8 +2,9 @@
 
 namespace Haxibiao\Wallet;
 
-use Haxibiao\Wallet\Strategies\Pay\WithdrawStrategyMaker;
-use Haxibiao\Wallet\Withdraw;
+use App\OAuth;
+use App\Withdraw;
+use Haxibiao\Wallet\Strategies\Pay\PayStrategyMaker;
 
 class LuckyWithdraw extends Withdraw
 {
@@ -32,6 +33,18 @@ class LuckyWithdraw extends Withdraw
                 'real_name'   => data_get($user->wallet, 'real_name', ''),
                 'remark'      => sprintf('【%s】提现', config('app.name_cn')),
             ];
+
+            // FIXME:微信授权因为混串app_id使用,所以每次支付需要携带appid进去支付.
+            if ($this->platformIs(Withdraw::WECHAT_PLATFORM)) {
+                $appId = data_get(OAuth::with('appId')
+                        ->ofType(OAuth::WECHAT_TYPE)
+                        ->where('oauth_id', $this->to_account)
+                        ->select('app_id')
+                        ->first(), 'appId.value');
+                if (!empty($appId)) {
+                    $transferPaymentInfo['appid'] = $appId;
+                }
+            }
         } else {
             // 内部站点服务群:答妹、懂得赚提现策略业务参数
             $transferPaymentInfo = [
@@ -44,6 +57,6 @@ class LuckyWithdraw extends Withdraw
         }
 
         $strategy = $platform == 'qq' ? 'QPay' : ($isOurSite ? 'HashSitePay' : $platform);
-        return WithdrawStrategyMaker::setStrategy($strategy)->transfer($transferPaymentInfo);
+        return PayStrategyMaker::setStrategy($strategy)->transfer($transferPaymentInfo);
     }
 }

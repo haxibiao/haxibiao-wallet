@@ -3,7 +3,7 @@ namespace Haxibiao\Wallet\Strategies\Pay;
 
 use Illuminate\Support\Str;
 
-class WithdrawStrategyMaker
+class PayStrategyMaker
 {
     private static $instance = null;
 
@@ -34,17 +34,5 @@ class WithdrawStrategyMaker
         $instance->strategyName = $name;
 
         return $instance->strategys[$name];
-    }
-
-    public function transfer($transferPaymentInfo)
-    {
-
-        // before the transfer to do
-
-        $transferResult = $this->strategys[$this->strategyName]->transfer($transferPaymentInfo);
-
-        // after the transfer to do
-
-        return $transferResult;
     }
 }
