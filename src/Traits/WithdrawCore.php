@@ -14,7 +14,7 @@ use Haxibiao\Wallet\InvitationWithdraw;
 use Haxibiao\Wallet\JDJRWithdraw;
 use Haxibiao\Wallet\Jobs\ProcessWithdraw;
 use Haxibiao\Wallet\LuckyWithdraw;
-use Haxibiao\Wallet\Strategies\Pay\PayContext;
+use Haxibiao\Wallet\Strategies\Pay\WithdrawStrategyMaker;
 use Haxibiao\Wallet\Transaction;
 use Haxibiao\Wallet\Withdraw;
 use Illuminate\Support\Facades\DB;
@@ -139,8 +139,11 @@ trait WithdrawCore
         }
 
         $strategy = $platform == 'qq' ? 'QPay' : ($isOurSite ? 'HashSitePay' : $platform);
-        return PayContext::setStrategy($strategy)->transfer($transferPaymentInfo);
+        return WithdrawStrategyMaker::setStrategy($strategy)->transfer($transferPaymentInfo);
     }
+
+
+
 
     /**
      * 提现退款

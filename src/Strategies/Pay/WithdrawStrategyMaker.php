@@ -3,7 +3,7 @@ namespace Haxibiao\Wallet\Strategies\Pay;
 
 use Illuminate\Support\Str;
 
-class PayContext
+class WithdrawStrategyMaker
 {
     private static $instance = null;
 

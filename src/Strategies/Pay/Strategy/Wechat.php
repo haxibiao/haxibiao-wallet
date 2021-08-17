@@ -24,7 +24,7 @@ class Wechat extends PayStrategy
      * @param string $bizData['remark']
      * @return TransferResult
      */
-    public function transfer(array $bizData): TransferResult
+    public function transfer(array $bizData, $appId = null): TransferResult
     {
         $transferInfo = Wechat::buildTransferInfo($bizData);
         try {

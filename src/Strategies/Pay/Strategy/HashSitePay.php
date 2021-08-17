@@ -26,7 +26,7 @@ class HashSitePay extends PayStrategy
      * @param float $bizData['amount']
      * @return TransferResult
      */
-    public function transfer($bizData): TransferResult
+    public function transfer(array $bizData): TransferResult
     {
         $uuid      = $bizData['uuid'];
         $result    = [];

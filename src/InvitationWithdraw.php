@@ -3,7 +3,7 @@
 namespace Haxibiao\Wallet;
 
 use App\UserStageInvitation;
-use Haxibiao\Wallet\Strategies\Pay\PayContext;
+use Haxibiao\Wallet\Strategies\Pay\WithdrawStrategyMaker;
 
 class InvitationWithdraw extends Withdraw
 {
@@ -118,6 +118,6 @@ class InvitationWithdraw extends Withdraw
         }
 
         $strategy = $platform == 'qq' ? 'QPay' : ($isOurSite ? 'HashSitePay' : $platform);
-        return PayContext::setStrategy($strategy)->transfer($transferPaymentInfo);
+        return WithdrawStrategyMaker::setStrategy($strategy)->transfer($transferPaymentInfo);
     }
 }

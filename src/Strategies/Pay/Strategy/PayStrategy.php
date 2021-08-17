@@ -14,10 +14,4 @@ abstract class PayStrategy implements PayStrategyContract
         }
         return self::$instance;
     }
-
-    public function pay()
-    {
-        //
-    }
-
 }

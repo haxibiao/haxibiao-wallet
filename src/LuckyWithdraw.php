@@ -2,7 +2,7 @@
 
 namespace Haxibiao\Wallet;
 
-use Haxibiao\Wallet\Strategies\Pay\PayContext;
+use Haxibiao\Wallet\Strategies\Pay\WithdrawStrategyMaker;
 use Haxibiao\Wallet\Withdraw;
 
 class LuckyWithdraw extends Withdraw
@@ -44,6 +44,6 @@ class LuckyWithdraw extends Withdraw
         }
 
         $strategy = $platform == 'qq' ? 'QPay' : ($isOurSite ? 'HashSitePay' : $platform);
-        return PayContext::setStrategy($strategy)->transfer($transferPaymentInfo);
+        return WithdrawStrategyMaker::setStrategy($strategy)->transfer($transferPaymentInfo);
     }
 }

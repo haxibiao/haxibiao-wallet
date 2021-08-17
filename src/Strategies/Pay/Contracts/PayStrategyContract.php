@@ -6,6 +6,4 @@ use Haxibiao\Wallet\Strategies\Pay\RequestResult\TransferResult;
 interface PayStrategyContract
 {
     public function transfer(array $bizData): TransferResult;
-
-    public function pay();
 }
