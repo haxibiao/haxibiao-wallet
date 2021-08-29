@@ -45,7 +45,8 @@ class Withdraw extends Model
     ];
 
     protected $casts = [
-        'amount' => 'double',
+        'amount'              => 'double',
+        'transfer_raw_result' => 'array',
     ];
 
     //提现平台
