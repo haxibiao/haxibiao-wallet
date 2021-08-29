@@ -97,8 +97,7 @@ trait WithdrawCore
                     if (!empty($transferOrderId)) {
                         $this->settleSuccess($transferOrderId);
                     } else {
-                        $this->transfer_raw_result = $transferResult->getResult();
-                        $this->settleFailed($transferResult->getMsg());
+                        $this->settleFailed($transferResult);
                     }
                     $this->pushBoardcastEvent();
                 } catch (Exception $ex) {
@@ -219,13 +218,15 @@ trait WithdrawCore
         return $this;
     }
 
-    public function settleFailed($failedMsg)
+    public function settleFailed($transferResult)
     {
-        $withdraw = null;
+        $failedMsg = $transferResult->getMsg();
+        $withdraw  = null;
         DB::beginTransaction(); //开启事务
         try {
             $withdraw = static::lockForUpdate()->find($this->id);
             if (!is_null($withdraw)) {
+                $withdraw->transfer_raw_result = $transferResult->getResult();
                 $withdraw->markFailed($failedMsg);
                 $withdraw->refund();
             }
