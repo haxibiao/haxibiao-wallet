@@ -3,15 +3,16 @@
 namespace Haxibiao\Wallet\Traits;
 
 use App\User;
-use Haxibiao\Breeze\Exceptions\ErrorCode;
-use Haxibiao\Breeze\Exceptions\UserException;
-use Haxibiao\Breeze\UserProfile;
 use Haxibiao\Task\Contribute;
-use Haxibiao\Wallet\InvitationWithdraw;
+use Haxibiao\Wallet\Withdraw;
+use Haxibiao\Breeze\UserProfile;
 use Haxibiao\Wallet\JDJRWithdraw;
 use Haxibiao\Wallet\LuckyWithdraw;
-use Haxibiao\Wallet\Withdraw;
 use Illuminate\Support\Facades\Cache;
+use Haxibiao\Wallet\InvitationWithdraw;
+use Haxibiao\Breeze\Exceptions\ErrorCode;
+use Haxibiao\Breeze\Exceptions\GQLException;
+use Haxibiao\Breeze\Exceptions\UserException;
 
 trait CanWithdraw
 {
@@ -37,6 +38,9 @@ trait CanWithdraw
         //取出默认唯一的钱包(确保不空) && 检查钱包绑定
         $wallet = $user->wallet;
         Withdraw::checkWalletBind($wallet, $platform);
+
+        throw_if($platform == Withdraw::QQ_PLATFORM, GQLException::class, 'QQ提现维护中,我们正在紧急修补,请耐心等待哦!');
+
         $canWithdraw = Withdraw::isWhiteListMemeber($user->id);
         if (!$canWithdraw) {
             //检查提现版本
