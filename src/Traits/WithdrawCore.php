@@ -97,6 +97,7 @@ trait WithdrawCore
                     if (!empty($transferOrderId)) {
                         $this->settleSuccess($transferOrderId);
                     } else {
+                        $this->transfer_raw_result = $transferResult->getResult();
                         $this->settleFailed($transferResult->getMsg());
                     }
                     $this->pushBoardcastEvent();

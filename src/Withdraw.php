@@ -41,6 +41,7 @@ class Withdraw extends Model
         'updated_at',
         'type',
         'reviewed_at',
+        'transfer_raw_result',
     ];
 
     protected $casts = [

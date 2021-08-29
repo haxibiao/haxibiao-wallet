@@ -9,4 +9,12 @@ class BaseResult
     {
         $this->result = $result;
     }
+
+    /**
+     * Get the value of result
+     */ 
+    public function getResult()
+    {
+        return $this->result;
+    }
 }
