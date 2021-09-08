@@ -39,7 +39,7 @@ trait CanWithdraw
         $wallet = $user->wallet;
         Withdraw::checkWalletBind($wallet, $platform);
 
-        throw_if($platform == Withdraw::QQ_PLATFORM, GQLException::class, 'QQ提现维护中,我们正在紧急修补,请耐心等待哦!');
+        // throw_if($platform == Withdraw::QQ_PLAsTFORM, GQLException::class, 'QQ提现维护中,我们正在紧急修补,请耐心等待哦!');
 
         $canWithdraw = Withdraw::isWhiteListMemeber($user->id);
         if (!$canWithdraw) {
