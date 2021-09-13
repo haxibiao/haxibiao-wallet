@@ -33,6 +33,8 @@ class InvitationWithdraw extends Withdraw
         //取出默认唯一的钱包(确保不空) && 检查钱包绑定
         $wallet = $user->wallet;
         self::checkWalletBind($wallet, $platform);
+        //使用邀请钱包验证下面的提现次数和状态逻辑
+        $wallet      = $user->withdrawWallet($type);
         $canWithdraw = !Withdraw::isWhiteListMemeber($user->id);
         if (!$canWithdraw) {
             //检查提现版本
