@@ -112,6 +112,25 @@ trait WithdrawCore
         return $this;
     }
 
+    public function settleFailedMsg($failedMsg)
+    {
+        $withdraw = null;
+        DB::beginTransaction(); //开启事务
+        try {
+            $withdraw = static::lockForUpdate()->find($this->id);
+            if (!is_null($withdraw)) {
+                $withdraw->markFailed($failedMsg);
+                $withdraw->refund();
+            }
+            DB::commit();
+        } catch (Exception $ex) {
+            Log::error($ex);
+            DB::rollback(); //数据回滚
+        }
+
+        return $withdraw;
+    }
+
     protected function makingTransfer()
     {
         $wallet                                  = $this->wallet;
