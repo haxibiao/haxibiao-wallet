@@ -2,22 +2,44 @@
 
 namespace Haxibiao\Wallet\Traits;
 
+use Haxibiao\Wallet\BanUser;
 use Haxibiao\Wallet\Gold;
 
 trait GoldRepo
 {
 
     /**
-     *  检查账单记录异常用户，今日答题数不正常
+     *  检查账单记录异常用户
      */
-    public static function detectBadUser($user)
+    public static function detectBadUser($gold)
     {
-        // $date = today();
+        if (config('app.name') == "datizhuanqian") {
+            $user = $gold->user;
+            if ($user) {
+                $today_gold = $user->golds()->where('created_at', '>=', today())->sum('gold') ?? 0;
+                if ($today_gold >= 6000) {
+                    $reason = "异常日期:" . now() . "日单日智慧点获得数大于600";
+                    BanUser::record($user, $reason);
+                }
+                if ($gold->remark == "视频观看奖励" && !$user->isDisable) {
+                    //检查距离上一次记录的时间间隔
+                    $pre_data = $user->golds()
+                        ->where('created_at', '>=', today())
+                        ->where('remark', '视频观看奖励')
+                        ->latest('id')
+                        ->first();
 
-        // if ($user->profile->answers_count_today > 1000) {
-        //     $reason = "异常日期: {$date->toDateString()} 今日答题数超过1000不正常";
-        //     BanUser::record($user, $reason, false);
-        // }
+                    if ($pre_data) {
+                        //如果两次获得贡献相差 xxs
+                        $diffSecond = $pre_data->created_at->diffInSeconds(now());
+                        if ($diffSecond < 29) {
+                            $reason = "异常日期: " . now() . "，两次获得智慧点时间相差：{$diffSecond} 秒";
+                            BanUser::record($user, $reason);
+                        }
+                    }
+                }
+            }
+        }
     }
 
     public static function resetGold($user, $remark)

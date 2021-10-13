@@ -38,15 +38,7 @@ class Gold extends Model
         parent::boot();
 
         static::saving(function ($model) {
-            if (config('app.name') == "datizhuanqian") {
-                $user       = $model->user;
-                $today_gold = $user->golds()->where('created_at', '>=', today())->sum('gold') ?? 0;
-                if ($today_gold >= 6000) {
-                    $reason = "异常日期:" . now() . "日单日智慧点获得数大于600";
-                    //封禁用户
-                    BanUser::record($user, $reason);
-                }
-            }
+            Gold::detectBadUser($model);
         });
     }
 
