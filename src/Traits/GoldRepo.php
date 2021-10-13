@@ -18,7 +18,7 @@ trait GoldRepo
             if ($user) {
                 $today_gold = $user->golds()->where('created_at', '>=', today())->sum('gold') ?? 0;
                 if ($today_gold >= 6000) {
-                    $reason = "异常日期:" . now() . "日单日智慧点获得数大于600";
+                    $reason = "异常日期:" . now() . "日单日智慧点获得数大于6000";
                     BanUser::record($user, $reason);
                 }
                 if ($gold->remark == "视频观看奖励" && !$user->isDisable) {
