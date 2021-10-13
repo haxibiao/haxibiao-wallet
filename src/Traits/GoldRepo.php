@@ -15,13 +15,13 @@ trait GoldRepo
     {
         if (config('app.name') == "datizhuanqian") {
             $user = $gold->user;
-            if ($user) {
+            if ($user && !$user->isDisable) {
                 $today_gold = $user->golds()->where('created_at', '>=', today())->sum('gold') ?? 0;
                 if ($today_gold >= 6000) {
                     $reason = "异常日期:" . now() . "日单日智慧点获得数大于6000";
                     BanUser::record($user, $reason);
                 }
-                if ($gold->remark == "视频观看奖励" && !$user->isDisable) {
+                if ($gold->remark == "视频观看奖励") {
                     //检查距离上一次记录的时间间隔
                     $pre_data = $user->golds()
                         ->where('created_at', '>=', today())
