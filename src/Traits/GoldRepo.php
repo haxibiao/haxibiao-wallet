@@ -22,18 +22,21 @@ trait GoldRepo
                     BanUser::record($user, $reason);
                 }
                 if ($gold->remark == "视频观看奖励") {
-                    //检查距离上一次记录的时间间隔
-                    $pre_data = $user->golds()
-                        ->where('created_at', '>=', today())
+                    $second = 10;
+                    //检查距离上两次记录的时间间隔
+                    $pre_datas = $user->golds()
                         ->where('remark', '视频观看奖励')
                         ->latest('id')
-                        ->first();
+                        ->take(3)
+                        ->get();
 
-                    if ($pre_data) {
+                    if (count($pre_datas) > 2) {
                         //如果两次获得贡献相差 xxs
-                        $diffSecond = $pre_data->created_at->diffInSeconds(now());
-                        if ($diffSecond < 29) {
-                            $reason = "异常日期: " . now() . "，两次获得智慧点时间相差：{$diffSecond} 秒";
+                        $diffSecond1 = $pre_datas[0]->created_at->diffInSeconds($pre_datas[1]->created_at);
+                        $diffSecond2 = $pre_datas[1]->created_at->diffInSeconds($pre_datas[2]->created_at);
+                        if ($diffSecond1 <= $second && $diffSecond2 <= $second) {
+                            //封禁用户
+                            $reason = "异常日期: " . now() . "，连续两次获得智慧点时间相差小于：{$second} 秒";
                             BanUser::record($user, $reason);
                         }
                     }
