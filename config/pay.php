@@ -48,7 +48,7 @@ return [
     ],
     'qq'     => [
         'input_charset'    => 'UTF-8',
-        'mch_id'           => env('MCH_ID'),
+        'mch_id'           => env('QQ_MCH_ID'),
         'op_user_id'       => env('QQ_OP_USER_ID'),
         'op_user_passwd'   => env('QQ_OP_USER_PASSWD'),
         'spbill_create_ip' => env('WITHDRAW_SERVER_IP') ?? '127.0.0.1',
