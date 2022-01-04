@@ -3,6 +3,7 @@
 namespace Haxibiao\Wallet\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
+use Haxibiao\Helpers\utils\PayUtils;
 use Haxibiao\Wallet\Recharge;
 use Illuminate\Http\Request;
 use Yansongda\Pay\Log;
@@ -42,7 +43,7 @@ class PayController extends Controller
         $order = [
             'out_trade_no' => $trade_no,
             'total_fee'    => $amount * 100, // **单位：分**
-            'body'         => $subject,
+            'body' => $subject,
         ];
 
         $config = config('pay.alipay');
@@ -79,7 +80,7 @@ class PayController extends Controller
         $order = [
             'out_trade_no' => $trade_no,
             'total_fee'    => $amount * 100, // **单位：分**
-            'body'         => $subject,
+            'body' => $subject,
         ];
 
         $config = config('pay.wechat');
@@ -95,6 +96,24 @@ class PayController extends Controller
             $pay = Pay::wechat($config)->wap($order);
         }
         return $pay;
+    }
+
+    public function qqNotify(Request $request)
+    {
+        $data     = $request->all();
+        $payUtils = new PayUtils('qq');
+        $notify   = $payUtils->instance->verify($data);
+
+        //使用通用通知接口
+        if ($notify) {
+            if ($notify->data["trade_state"] == "FAIL") {
+                //操作成功，道具购买成功xxx
+            } else {
+                //操作失败，退款xxx
+            }
+        } else {
+
+        }
     }
 
     /**

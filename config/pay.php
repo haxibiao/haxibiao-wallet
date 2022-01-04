@@ -6,9 +6,9 @@ return [
         'notify_url'          => env('APP_URL') . '/api/pay/alipay-notify',
         'return_url'          => env('APP_URL') . '/api/pay/alipay-return',
         'private_key'         => @file_get_contents('/etc/alipay/private_key'), //需要提前支付宝部署自己证书到服务器
-        'ali_public_key'      => '/etc/alipay/alipayCertPublicKey_RSA2.crt',
+        'ali_public_key'   => '/etc/alipay/alipayCertPublicKey_RSA2.crt',
         'app_cert_public_key' => '/etc/alipay/appCertPublicKey_2021001172621778.crt', //应用公钥证书路径
-        'alipay_root_cert'    => '/etc/alipay/alipayRootCert.crt',
+        'alipay_root_cert' => '/etc/alipay/alipayRootCert.crt',
         'log'                 => [
             'file'     => storage_path('logs/pay/alipay.log'),
             'level'    => 'info',
@@ -45,5 +45,15 @@ return [
             'connect_timeout' => 30,
         ],
         'mode'        => 'normal',
+    ],
+    'qq'     => [
+        'input_charset'    => 'UTF-8',
+        'mch_id'           => env('MCH_ID'),
+        'op_user_id'       => env('QQ_OP_USER_ID'),
+        'op_user_passwd'   => env('QQ_OP_USER_PASSWD'),
+        'spbill_create_ip' => env('WITHDRAW_SERVER_IP') ?? '127.0.0.1',
+        'api_key'          => env('QQ_APP_KEY'),
+        'appid'            => env('QQ_APP_ID'),
+        'notify_url'       => env('APP_URL') . '/api/pay/qq-notify',
     ],
 ];
